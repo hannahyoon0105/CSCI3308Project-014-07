@@ -11,9 +11,9 @@ ChefTok is a social networking application focused on cooking. The app will allo
 - Ryan Greer
 
 ## Technology Stack 
-**Web Application**: HTML, CSS, Javascript
-**Middleware**: Docker 
-**Database**: PostgreSQL
+- **Web Application**: HTML, CSS, Javascript
+- **Middleware**: Docker 
+- **Database**: PostgreSQL
 
 ## Prerequisites
 
