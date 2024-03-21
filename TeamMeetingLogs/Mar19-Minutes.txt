@@ -1,0 +1,20 @@
+CSCI 3308 meeting 1 notes
+
+Discussed project plan
+
+Discussed participation and meeting rubric
+- Graded based on commits to project
+    - MAKE SURE BRANCHES ARE MERGED ASAP FOR GRADING
+
+Meeting process
+1. Discuss release notes
+    1. Each person says what they did
+    2. Each person says plan for following week(create issue on GitHub board
+
+Vladimir asked about the quantity of code for the project
+- Loose suggestion: about a lab of code/functionality per group member
+
+On scope of the app:
+- Make sure we focus on specific features(narrow down) that separates our app from the rest
+    - What aspects of social media and existing recipe sites do we believe best fits out vision
+    - Are there any new features we believe should exist?
