@@ -1,0 +1,11 @@
+This week our group focused on organizing our github repository, setting up the environment and initializing the database, and creating basic UI functionality.
+
+Current Project Updates: 
+- Configure Docker-Compose.yaml:configured docker to connect to our database and the web application we are creating 
+- Initialize Database: made an ERD representing what our relational database should look like and created the tables listed in ERD
+- Pages
+    - Login: Implemented basic login functionality 
+    - Logout: Implemented basic logout functionality 
+    - Register: Created registration page for users 
+- Partials
+    - Head: Designed a header for the website 

@@ -86,6 +86,9 @@ app.get('/login', function (req, res) {
 app.get('/register', function (req, res) {
   res.render('pages/register');
 });
+app.get('/home', function (req, res) {
+  res.render('pages/home');
+});
 
 
 app.post('/register', async (req, res) => {
@@ -94,10 +97,10 @@ app.post('/register', async (req, res) => {
   
     // To-DO: Insert username and hashed password into the 'users' table
     const username = req.body.username;
-    const query = 'INSERT INTO users (username, password) VALUES($1, $2) RETURNING *;';
+    const profile_pic = req.body.profilepic;
+    const query = 'INSERT INTO users (username, password, profile_pic) VALUES($1, $2, $3) RETURNING *;';
     
-    // get the student_id based on the emailid
-    db.one(query, [username, hash])
+    db.one(query, [username, hash, profile_pic])
         .then(data => {
         res.redirect('/login');
         })
