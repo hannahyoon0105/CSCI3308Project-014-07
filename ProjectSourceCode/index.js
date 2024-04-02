@@ -86,6 +86,9 @@ app.get('/login', function (req, res) {
 app.get('/register', function (req, res) {
   res.render('pages/register');
 });
+app.get('/home', function (req, res) {
+  res.render('pages/home');
+});
 
 
 app.post('/register', async (req, res) => {
