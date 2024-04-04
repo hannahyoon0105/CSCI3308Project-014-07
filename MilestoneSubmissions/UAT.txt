@@ -1,0 +1,25 @@
+Register
+1. User registers with a unique username and a password and a profile picture (successfully register user)
+2. User registers with an already existing username (throw an error)
+3. User registers with an invalid profile picture url (register user without adding the picture)
+
+Login
+1. 
+2. 
+3. 
+
+Logout
+1. 
+2. 
+3. 
+
+Post
+1. 
+2. 
+3. 
+
+Like
+1. 
+2. 
+3. 
+
