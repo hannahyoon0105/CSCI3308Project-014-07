@@ -101,6 +101,23 @@ app.post('/create-post', async (req, res) => { //post
   }
 });
 
+app.post('/like-post', async (req, res) => { //like
+  try {
+    const { post_id, username } = req.body;
+    const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+    if (existingLike) {
+      await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+      res.json({ success: true, message: 'Like removed successfully' });
+    } else {
+      await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
+      res.json({ success: true, message: 'Post liked successfully' });
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error liking post' });
+  }
+});
+
 app.post('/register', async (req, res) => {
     //hash the password using bcrypt library
     const hash = await bcrypt.hash(req.body.password, 10);
