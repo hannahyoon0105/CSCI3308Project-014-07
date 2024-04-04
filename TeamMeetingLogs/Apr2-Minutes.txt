@@ -1,0 +1,12 @@
+Meeting 2 minutes
+Alex Reid presented release notes and epic board
+
+Members presented what they worked on each meeting
+
+Make sure to keep project board up to date
+Make sure repo is up to date, reflecting changes on project board
+On board, make sure to create an issue where each person has an issue that they can for sure do by the following week, format: @user #1
+
+Make sure to publish release notes from pull requests(USE PULL REQUESTS TO DOCUMENT)
+
+Alex presented demo of meeting, showed login and registration pages
