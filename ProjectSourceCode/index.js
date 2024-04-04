@@ -90,6 +90,16 @@ app.get('/home', function (req, res) {
   res.render('pages/home');
 });
 
+app.post('/create-post', async (req, res) => { //post
+  try {
+    const { author, caption, recipe_id, date_created, image_url, original_flag } = req.body;
+    await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
+    res.redirect('/home'); 
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.redirect('/home'); 
+  }
+});
 
 app.post('/register', async (req, res) => {
     //hash the password using bcrypt library
