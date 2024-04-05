@@ -77,9 +77,10 @@ describe('Testing Redirect', () => {
     chai
       .request(server)
       .get('/test')
+      .redirects(0)
       .end((err, res) => {
         res.should.have.status(302); // Expecting a redirect status code
-        res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/); // Expecting a redirect to /login with the mentioned Regex
+        res.should.redirectTo('/login'); // Expecting a redirect to /login with the mentioned Regex
         done();
       });
   });
@@ -105,10 +106,11 @@ describe('Testing login API', () => {
     chai
       .request(server)
       .post('/login')
-      .send({username: 'user', password: 'password123'})
+      .redirects(0)
+      .send({username: 'jonny', password: 'password123'})
       .end((err, res) => {
-        expect(res).to.have.status(200);
-        res.should.redirectTo(/^.*127\.0\.0\.1.*\/home$/);
+        expect(res).to.have.status(302);
+        res.should.redirectTo('/home');
         done();
       });
   });
@@ -121,14 +123,15 @@ describe('Testing login API', () => {
   // Result: This test case should pass and return a status 400 along with a "Invalid input" message.
   // Explanation: The testcase will call the /add_user API with the following invalid inputs
   // and expects the API to return a status of 400 along with the "Invalid input" message.
-  it('Negative : /login. Checking invalid name', done => {
+  it('Negative : /login. Checking nonexistent user', done => {
     chai
       .request(server)
       .post('/login')
-      .send({username: 'user', password: 'ejfiej'})
+      .redirects(0)
+      .send({username: 'idontexist', password: 'ejfiej'})
       .end((err, res) => {
-        expect(res).to.have.status(200);
-        res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/);
+        expect(res).to.have.status(302);
+        res.should.redirectTo('/register');
         done();
       });
   });
