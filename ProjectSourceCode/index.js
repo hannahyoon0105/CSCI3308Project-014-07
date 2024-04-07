@@ -45,6 +45,8 @@ db.connect()
     console.log('ERROR:', error.message || error);
   });
 
+
+
 // *****************************************************
 // <!-- Section 3 : App Settings -->
 // *****************************************************
@@ -69,6 +71,9 @@ app.use(
     extended: true,
   })
 );
+const user = {
+  username: undefined
+};
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -80,7 +85,9 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get('/', function (req, res) {
-    res.redirect('/login');
+    res.render('pages/home',{
+      username: req.session.user.username
+    });
   });
 
 app.get('/test', function (req, res) {
@@ -105,6 +112,10 @@ app.get('/home', function (req, res) {
       error: true,
       message: 'Error getting posts'});
     });
+});
+
+app.get('/post', function (req, res) {
+  res.render('pages/post');
 });
 
 app.post('/create-post', async (req, res) => { //post
@@ -165,14 +176,14 @@ else, save the user in the session variable
 */
 
   try {
-    const user = await db.one('SELECT * FROM users WHERE username = $1;', [req.body.username]);
-    
-    const match = await bcrypt.compare(req.body.password, user.password);
+    const login_user = await db.one('SELECT * FROM users WHERE username = $1;', [req.body.username]);
+    const match = await bcrypt.compare(req.body.password, login_user.password);
     
     if (match) {
+      user.username = login_user.username;
       req.session.user = user;
       req.session.save();
-      res.redirect('/home');
+      res.redirect('/');
     } else {
       res.render('pages/login' ,{
         message: `Incorrect username or password.`
