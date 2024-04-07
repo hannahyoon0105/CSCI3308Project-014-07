@@ -95,7 +95,16 @@ app.get('/register', function (req, res) {
   res.render('pages/register');
 });
 app.get('/home', function (req, res) {
-  res.render('pages/home');
+  db.any('SELECT * FROM posts')
+    .then(posts => {
+      console.log(posts)
+      res.render('pages/home', { posts });
+    })
+    .catch(err => {
+      res.render('pages/home', {
+      error: true,
+      message: 'Error getting posts'});
+    });
 });
 
 app.post('/create-post', async (req, res) => { //post

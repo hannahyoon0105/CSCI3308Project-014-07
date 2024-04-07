@@ -1,18 +1,18 @@
-{{> head}}
-{{> nav}}
 
 <!-- Main Feed -->
 <div class="main-feed">
-    {{#each events}}
+    {{#each posts}}
     <!-- Post Card -->
+
     <div class="post-card">
-        <div class="post-header">
+        <!--<div class="post-header">
             <img src="{{userProfilePhoto}}" alt="User Posted Photo" class="post-photo">
             <h3 class="username">{{username}}</h3>
             <button class="recipe-button">View Recipe</button>
-        </div>
+        </div>-->
+        
         <div class="post-content">
-            <img src="{{postPhoto}}" alt="Posted Photo" class="post-photo">
+            <img src="{{image_url}}" alt="Posted Photo" class="post-photo">
             <p class="caption">{{caption}}</p>
             <!-- Like, Comment, Repost Buttons -->
             <div class="post-actions">
@@ -22,6 +22,7 @@
             </div>
         </div>        
     </div>
+
     {{/each}}
 </div>
 

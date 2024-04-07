@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY,
     password CHAR(60) NOT NULL,
-    profile_pic VARCHAR(200) NOT NULL
+    profile_pic VARCHAR(200)
 );
 DROP TABLE IF EXISTS recipes;
 CREATE TABLE recipes (
