@@ -1,16 +1,21 @@
 {{> head}}
 {{> nav}}
 {{!-- pfp --}}
-<img src="">
-
-<h1>Username</h1>
-
-<button>Follow</button>
-
-<p>_ followers</p>
-
-<p>_ following</p>
-
+<div class="card">
+    <div class="card-body">
+    <div class="row">
+    <div class="col text-left"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkr4HamH6evM84k6_hAyVYfJadO6cDUb7PdV-XFY289A&s" class="img-thumbnail"></div>
+      <div class="col-sm-6">
+        <h1>Username</h1>
+        <p>_ followers • _ following</p>
+      </div>
+      <div class="col text-right">
+        <button id="follow-button" class="btn btn-lg btn-primary">Follow</button>
+      </div>
+    </div>
+  </div>
+</div>
+<h1>DISPLAY FEED HERE</h1>
 {{!-- loop to display each post from a user --}}
 {{!-- {{#each}}
 

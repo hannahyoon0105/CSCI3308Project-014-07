@@ -10,7 +10,7 @@ const path = require('path');
 const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
 const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
-const bcrypt = require('bcrypt'); //  To hash passwords
+// const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 
 // *****************************************************
@@ -69,13 +69,24 @@ app.use(
     extended: true,
   })
 );
-
+const user = {
+  username: undefined
+};
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
 
 // TODO - Include your API routes here
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 app.get('/', function (req, res) {
+  res.render('pages/home',{
+    username: req.session.user.username
+  });
+});
+app.get('/test', function (req, res) {
     res.redirect('/login');
   });
 
@@ -87,9 +98,53 @@ app.get('/register', function (req, res) {
   res.render('pages/register');
 });
 app.get('/home', function (req, res) {
+  db.any('SELECT * FROM posts')
+    .then(posts => {
+      console.log(posts)
+      res.render('pages/home', { posts });
+    })
+    
+ .catch(err => {
   res.render('pages/home');
+      res.render('pages/home', {
+      error: true,
+      message: 'Error getting posts'});
+    });
 });
 
+app.get('/user', function(req,res) {
+  res.render('pages/user');
+});
+
+app.get('/post', function (req, res) {
+  res.render('pages/post');
+});
+app.post('/create-post', async (req, res) => { //post
+  try {
+    const { author, caption, recipe_id, date_created, image_url, original_flag } = req.body;
+    await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
+    res.redirect('/home');
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.redirect('/home');
+  }
+});
+app.post('/like-post', async (req, res) => { //like
+  try {
+    const { post_id, username } = req.body;
+    const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+    if (existingLike) {
+      await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+      res.json({ success: true, message: 'Like removed successfully' });
+    } else {
+      await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
+      res.json({ success: true, message: 'Post liked successfully' });
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error liking post' });
+  }
+});
 
 app.post('/register', async (req, res) => {
     //hash the password using bcrypt library
@@ -119,14 +174,15 @@ else, save the user in the session variable
 */
 
   try {
-    const user = await db.one('SELECT * FROM users WHERE username = $1;', [req.body.username]);
+    const login_user = await db.one('SELECT * FROM users WHERE username = $1;', [req.body.username]);
     
-    const match = await bcrypt.compare(req.body.password, user.password);
+    const match = await bcrypt.compare(req.body.password, login_user.password);
     
     if (match) {
+      user.username = login_user.username;
       req.session.user = user;
       req.session.save();
-      res.redirect('/home');
+      res.redirect('/');
     } else {
       res.render('pages/login' ,{
         message: `Incorrect username or password.`
