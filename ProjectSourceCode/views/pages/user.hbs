@@ -1,14 +1,17 @@
-{{> head}}
-{{> nav}}
 {{!-- pfp --}}
 <div class="card">
     <div class="card-body">
     <div class="row">
-    <div class="col text-left"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkr4HamH6evM84k6_hAyVYfJadO6cDUb7PdV-XFY289A&s" class="img-thumbnail"></div>
-      <div class="col-sm-6">
+    <div class="col text-left" id="profile-picture">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkr4HamH6evM84k6_hAyVYfJadO6cDUb7PdV-XFY289A&s" class="img-thumbnail" height="100px" width="100px"
+        style="border-radius: 50%;">
+    </div>
+      <div class="col text-left">
         <h1>Username</h1>
         <p>_ followers • _ following</p>
       </div>
+      <div class="col text-left"></div>
+      <div class="col text-left"></div>
       <div class="col text-right">
         <button id="follow-button" class="btn btn-lg btn-primary">Follow</button>
       </div>

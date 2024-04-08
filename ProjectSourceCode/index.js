@@ -113,6 +113,27 @@ app.get('/home', function (req, res) {
 });
 
 app.get('/user', function(req,res) {
+  const user_query = `SELECT *
+  FROM users`;
+  
+  const post_query = `SELECT *
+  FROM posts
+  WHERE author = $1
+  ORDER BY date_created DESC
+  `;
+
+  const username = req.body.username;
+
+  db.task('get-user', task => {
+    return task.batch([
+      task.any(user_query, [username]),
+      task.any(post_query, [username]),
+    ])
+  })
+  .then (posts => {
+    console.log(posts)
+  })
+
   res.render('pages/user');
 });
 
