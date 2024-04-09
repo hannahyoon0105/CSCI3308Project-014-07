@@ -320,82 +320,11 @@ app.get('/post', function (req, res) {
   });
 });
 
-app.post('/follow-user', async (req, res) => { //follow
-  try {
-    const { username, followee } = req.body;
-    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE username = $1 AND followee = $2', [username, followee]);
-    if (existingFollower) {
-      await db.none('DELETE FROM followers WHERE followee = $1 AND follower = $2', [username, followee]);
-      res.json({ success: true, message: 'Successfully Unfollowed' });
-    } else {
-      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
-      res.json({ success: true, message: 'User Followed Successfully' });
-    }
-  } catch (error) {
-    console.error('Error liking post:', error);
-    res.status(500).json({ success: false, message: 'Error following user' });
-  }
-});
 
-app.post('/create-post', async (req, res) => { //post
-  try {
-    const author = req.session.user.username;
-    const title = req.body.title;
-    const body = req.body.body;
-    const date_created = new Date();
-    const caption = req.body.caption;
-    const image_url = req.body.image_url;
-    const original_flag = true;
 
-    db.one('INSERT INTO recipes (title, author, body, date_created) VALUES ($1, $2, $3, $4) RETURNING recipe_id;', [title, author, body, date_created])
-    .then(data => {
-      db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, data.recipe_id, date_created, image_url, original_flag]);
-      res.redirect('/home');
-    })
-  } catch (error) {
-    console.error('Error creating post:', error);
-    res.redirect('/home'); 
-  }
-});
 
-app.post('/like-post', async (req, res) => { //like
-  try {
-    const { post_id, username } = req.body;
-    const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
-    if (existingLike) {
-      await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
-      res.json({ success: true, message: 'Like removed successfully' });
-    } else {
-      await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
-      res.json({ success: true, message: 'Post liked successfully' });
-    }
-  } catch (error) {
-    console.error('Error liking post:', error);
-    res.status(500).json({ success: false, message: 'Error liking post' });
-  }
-});
 
-app.post('/comment-post', function (req, res) {
-  const query =
-    'insert into comments (post_id, username, body, date_created) values ($1, $2, $3, $4)  returning * ;';
-  db.any(query, [
-    req.body.post_id,
-    req.body.username,
-    req.body.comment,
-    req.body.date_created,
-  ])
-    .then(function (data) {
-      res.status(201).json({
-        status: 'success',
-        data: data,
-        message: 'data added successfully',
-      });
-    })
-    .catch(function (err) {
-      console.error('Error liking post:', error);
-      res.status(500).json({ success: false, message: 'Error commenting on post' });
-    });
-});
+
 
 
 
