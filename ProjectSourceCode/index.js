@@ -149,6 +149,23 @@ app.post('/like-post', async (req, res) => { //like
   }
 });
 
+app.post('/follow-user', async (req, res) => { //follow
+  try {
+    const { username, followee } = req.body;
+    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE username = $1 AND followee = $2', [username, followee]);
+    if (existingFollower) {
+      await db.none('DELETE FROM followers WHERE followee = $1 AND follower = $2', [username, followee]);
+      res.json({ success: true, message: 'Successfully Unfollowed' });
+    } else {
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
+      res.json({ success: true, message: 'User Followed Successfully' });
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error following user' });
+  }
+});
+
 app.post('/register', async (req, res) => {
     //hash the password using bcrypt library
     const hash = await bcrypt.hash(req.body.password, 10);
