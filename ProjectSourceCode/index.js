@@ -10,7 +10,7 @@ const path = require('path');
 const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
 const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
-const bcrypt = require('bcrypt'); //  To hash passwords
+// const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 
 // *****************************************************
@@ -152,6 +152,7 @@ app.get('/recipe', function (req, res) {
 
   const recipe_query = `SELECT *
   FROM RECIPES
+  INNER JOIN users ON users.username = recipes.author
   WHERE recipe_id = $1`
 
   const recipe_id = 14;
@@ -159,7 +160,11 @@ app.get('/recipe', function (req, res) {
   db.any(recipe_query, recipe_id)
   .then (recipedata => {
     console.log(recipedata)
-    res.render('pages/recipe', {title: recipedata[0].title, author: recipedata[0].author, body: recipedata[0].body, date_created: recipedata[0].date_created});
+    const sqlTimeStamp = recipedata[0].date_created;
+    const jsDate = new Date(sqlTimeStamp);
+    const formattedDate = `${jsDate.toLocaleDateString()}`;
+
+    res.render('pages/recipe', {title: recipedata[0].title, author: recipedata[0].author, body: recipedata[0].body, date_created: formattedDate, profile_picture: recipedata[0].profile_pic});
   })
   .catch (error => {
     console.log(error)
