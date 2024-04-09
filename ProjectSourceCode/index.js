@@ -101,8 +101,10 @@ app.get('/login', function (req, res) {
 app.get('/register', function (req, res) {
   res.render('pages/register');
 });
+
 app.get('/home', function (req, res) {
-  db.any('SELECT * FROM posts')
+  const username = req.session.username;
+  db.any('SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
     .then(posts => {
       console.log(posts)
       res.render('pages/home', { posts });
@@ -113,6 +115,7 @@ app.get('/home', function (req, res) {
       message: 'Error getting posts'});
     });
 });
+
 
 app.get('/post', function (req, res) {
   res.render('pages/post');
