@@ -1,7 +1,7 @@
 {{> head}}
 {{> nav}}
 
-<h1>Recipe Title</h1>
+<h1>{{title}}</h1>
 
 <button>Post your own version!</button>
 
@@ -11,14 +11,17 @@
 
 <p>_ reposts</p>
 
-<p>Created by:</p>
+<p>Created by: {{author}}</p>
 {{!-- pfp --}}
 <img src="">
-<h4>username</h4>
+<p>{{date_created}}</p>
 
 
 <p>Serves _</p>
 <p>Prep time, cook time</p>
+
+<h3>Descirption:</h3>
+<p>{{body}}</p>
 
 {{!-- pull all recipe information from db, format in an organized way --}}
 
