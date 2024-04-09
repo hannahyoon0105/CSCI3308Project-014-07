@@ -101,50 +101,6 @@ app.get('/login', function (req, res) {
 app.get('/register', function (req, res) {
   res.render('pages/register');
 });
-app.get('/home', function (req, res) {
-  db.any('SELECT * FROM posts')
-    .then(posts => {
-      console.log(posts)
-      res.render('pages/home', { posts });
-    })
-    .catch(err => {
-      res.render('pages/home', {
-      error: true,
-      message: 'Error getting posts'});
-    });
-});
-
-app.get('/post', function (req, res) {
-  res.render('pages/post');
-});
-
-app.post('/create-post', async (req, res) => { //post
-  try {
-    const { author, caption, recipe_id, date_created, image_url, original_flag } = req.body;
-    await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
-    res.redirect('/home'); 
-  } catch (error) {
-    console.error('Error creating post:', error);
-    res.redirect('/home'); 
-  }
-});
-
-app.post('/like-post', async (req, res) => { //like
-  try {
-    const { post_id, username } = req.body;
-    const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
-    if (existingLike) {
-      await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
-      res.json({ success: true, message: 'Like removed successfully' });
-    } else {
-      await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
-      res.json({ success: true, message: 'Post liked successfully' });
-    }
-  } catch (error) {
-    console.error('Error liking post:', error);
-    res.status(500).json({ success: false, message: 'Error liking post' });
-  }
-});
 
 app.post('/register', async (req, res) => {
     //hash the password using bcrypt library
@@ -152,10 +108,9 @@ app.post('/register', async (req, res) => {
   
     // To-DO: Insert username and hashed password into the 'users' table
     const username = req.body.username;
-    const profile_pic = req.body.profile_pic;
-    const query = 'INSERT INTO users (username, password, profile_pic) VALUES($1, $2, $3) RETURNING *;';
+    const query = 'INSERT INTO users (username, password) VALUES($1, $2) RETURNING *;';
     
-    db.one(query, [username, hash, profile_pic])
+    db.one(query, [username, hash])
         .then(data => {
           res.redirect('/login');
         
@@ -208,6 +163,55 @@ const auth = (req, res, next) => {
 
 // Authentication Required
 app.use(auth);
+
+
+app.get('/home', function (req, res) {
+  db.any('SELECT * FROM posts')
+    .then(posts => {
+      console.log(posts)
+      res.render('pages/home', { posts,username: req.session.user.username });
+    })
+    .catch(err => {
+      res.render('pages/home', {
+      error: true,
+      message: 'Error getting posts',
+      username: req.session.user.username});
+    });
+});
+
+app.get('/post', function (req, res) {
+  res.render('pages/post', {
+    username: req.session.user.username
+  });
+});
+
+app.post('/create-post', async (req, res) => { //post
+  try {
+    const { author, caption, recipe_id, date_created, image_url, original_flag } = req.body;
+    await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
+    res.redirect('/home'); 
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.redirect('/home'); 
+  }
+});
+
+app.post('/like-post', async (req, res) => { //like
+  try {
+    const { post_id, username } = req.body;
+    const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+    if (existingLike) {
+      await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+      res.json({ success: true, message: 'Like removed successfully' });
+    } else {
+      await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
+      res.json({ success: true, message: 'Post liked successfully' });
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error liking post' });
+  }
+});
 
 app.get('/logout', (req, res) => {
   req.session.destroy();
