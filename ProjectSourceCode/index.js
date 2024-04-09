@@ -375,6 +375,30 @@ app.post('/like-post', async (req, res) => { //like
   }
 });
 
+app.post('/comment-post', function (req, res) {
+  const query =
+    'insert into comments (post_id, username, body, date_created) values ($1, $2, $3, $4)  returning * ;';
+  db.any(query, [
+    req.body.post_id,
+    req.body.username,
+    req.body.comment,
+    req.body.date_created,
+  ])
+    .then(function (data) {
+      res.status(201).json({
+        status: 'success',
+        data: data,
+        message: 'data added successfully',
+      });
+    })
+    .catch(function (err) {
+      console.error('Error liking post:', error);
+      res.status(500).json({ success: false, message: 'Error commenting on post' });
+    });
+});
+
+
+
 app.get('/logout', (req, res) => {
   req.session.destroy();
   res.render('pages/logout');
