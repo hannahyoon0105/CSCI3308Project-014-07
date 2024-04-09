@@ -214,7 +214,7 @@ app.post('/follow-user', async (req, res) => { //follow
   }
 });
 
-app.post('/comment_post', function (req, res) {
+app.post('/comment-post', function (req, res) {
   const query =
     'insert into comments (post_id, username, body, date_created) values ($1, $2, $3, $4)  returning * ;';
   db.any(query, [
