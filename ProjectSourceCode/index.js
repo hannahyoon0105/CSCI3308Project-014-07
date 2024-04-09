@@ -114,7 +114,8 @@ app.get('/home', function (req, res) {
 
 app.get('/user', function(req,res) {
   const user_query = `SELECT *
-  FROM users`;
+  FROM users
+  WHERE username = $1`;
   
   const post_query = `SELECT *
   FROM posts
@@ -122,7 +123,8 @@ app.get('/user', function(req,res) {
   ORDER BY date_created DESC
   `;
 
-  const username = req.body.username;
+  // const username = req.body.username;
+  const username = 'user3';
 
   db.task('get-user', task => {
     return task.batch([
@@ -130,12 +132,36 @@ app.get('/user', function(req,res) {
       task.any(post_query, [username]),
     ])
   })
-  .then (posts => {
-    console.log(posts)
+  .then (userdata => {
+    console.log(userdata)
+    res.render('pages/user', {username: userdata[0][0].username, profile_picture: userdata[0][0].profile_pic});
+    // add followers, posts when we figure out db issues
   })
-
-  res.render('pages/user');
+  .catch (error => {
+    console.log(error)
+    res.render('pages/user');
+  });
+  
 });
+
+app.get('/recipe', function (req, res) {
+
+  const recipe_query = `SELECT *
+  FROM RECIPES
+  WHERE recipe_id = $1`
+
+  const recipe_id = 14;
+
+  db.any(recipe_query, recipe_id)
+  .then (recipedata => {
+    console.log(recipedata)
+    res.render('pages/recipe', {title: recipedata[0].title, author: recipedata[0].author, body: recipedata[0].body, date_created: recipedata[0].date_created});
+  })
+  .catch (error => {
+    console.log(error)
+    res.render('pages/recipe');
+  })
+ });
 
 app.get('/post', function (req, res) {
   res.render('pages/post');
