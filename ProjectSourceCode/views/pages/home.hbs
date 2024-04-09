@@ -14,9 +14,15 @@
             <p class="caption">{{caption}}</p>
             <!-- Like, Comment, Repost Buttons -->
             <div class="post-actions">
-                <button class="action-button">Like</button>
-                <button class="action-button">Comment</button>
-                <button class="action-button">Repost</button>
+                <form action="/like-post" method="POST">
+                    <button class="action-button">Like</button>
+                </form>  
+                <form action="/comment-post" method="POST">
+                    <button class="action-button">Comment</button>
+                </form>   
+                <form action="/repost-post" method="POST">
+                    <button class="action-button">Repost</button>
+                </form>    
             </div>
         </div>
     </div>
