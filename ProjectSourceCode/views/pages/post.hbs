@@ -3,14 +3,39 @@
     <div class="col-sm">
     </div>
 
-
-
     <div class="col-sm">
       <h2>Create Post</h2>
-    
+      <form action="/create-post" method="POST"> 
+        <div class="form-group">
+          <label for="author">Author:</label>
+          <input type="text" id="author" name="author" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="caption">Caption:</label>
+          <input type="text" id="caption" name="caption" class="form-control">
+        </div>
+        <div class="form-group">
+          <label for="recipe_id">Recipe ID:</label>
+          <input type="number" id="recipe_id" name="recipe_id" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="date_created">Date Created:</label>
+          <input type="datetime-local" id="date_created" name="date_created" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="image_url">Image URL:</label>
+          <input type="text" id="image_url" name="image_url" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="original_flag">Original Flag:</label>
+          <select id="original_flag" name="original_flag" class="form-control" required>
+            <option value="true">True</option>
+            <option value="false">False</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
     </div>
-
-
 
     <div class="col-sm">
     </div>

@@ -2,7 +2,15 @@ DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     username VARCHAR(50) PRIMARY KEY,
     password CHAR(60) NOT NULL,
-    profile_pic VARCHAR(200) NOT NULL
+    profile_pic VARCHAR(200)
+);
+DROP TABLE IF EXISTS recipes;
+CREATE TABLE recipes (
+    recipe_id SERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    author VARCHAR(50) NOT NULL REFERENCES users(username),
+    body TEXT NOT NULL,
+    date_created TIMESTAMP NOT NULL
 );
 DROP TABLE IF EXISTS posts;
 CREATE TABLE posts (
@@ -14,14 +22,7 @@ CREATE TABLE posts (
     image_url VARCHAR(200) NOT NULL,
     original_flag BOOLEAN NOT NULL
 );
-DROP TABLE IF EXISTS recipe;
-CREATE TABLE recipe (
-    recipe_id SERIAL PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
-    author VARCHAR(50) NOT NULL REFERENCES users(username),
-    body TEXT NOT NULL,
-    date_created TIMESTAMP NOT NULL
-);
+
 DROP TABLE IF EXISTS followers;
 CREATE TABLE followers (
     follower VARCHAR(50) NOT NULL REFERENCES users(username),
@@ -37,7 +38,9 @@ CREATE TABLE likes (
 DROP TABLE IF EXISTS comments;
 CREATE TABLE comments (
     post_id INTEGER NOT NULL REFERENCES posts(post_id),
-    user VARCHAR(50) NOT NULL REFERENCES users(username),
+    username VARCHAR(50) NOT NULL REFERENCES users(username),
     body TEXT NOT NULL,
     date_created TIMESTAMP NOT NULL
 );
+
+INSERT INTO users (username, password, profile_pic) VALUES ('user', 'password123', 'jon.com'); 

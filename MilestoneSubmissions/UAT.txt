@@ -1,0 +1,86 @@
+--------Feature: Login--------
+Test cases: 
+1. User should be able to login with correct credentials.
+2. User login will faile if the user provides incorrect username or password
+3. The form provides the user with specific feedback about the error.
+
+
+Acceptance criteria:
+1. User should not be able to login without completing the mandatory fields:
+  - Mandatory fields include: username, password
+2. User should be able to log in successfully if the given password matches the password in the users table of the cookify_db associated with the given username.
+
+Test data will include:
+1. A correct username/password combination
+2. A username that exists in the database, but with an incorrect password
+3. A username that does not exist in the database, and an incorrect password
+4. Empty fields for both username and password
+5. Empty fields for either username or password
+
+Test environment:
+1. localhost
+
+Test results:
+1. If login is successful, the user will be redirected to the home page.
+2. If the login is unsuccessful, the user will be notified of specific feedback and redirected to register.
+
+User acceptance testers:
+1. User acceptance testers will be the Cookify developers who did not implement the login functionality.
+
+--------Feature: Like--------
+Test cases: 
+1. User should be able to press the like button to like an unliked post.
+2. User should be able to press the like button of a liked post to unlike the post.
+
+
+Acceptance criteria:
+1. The like button should indicate that the user liked the post.
+2. Clicking the like button will send information that is stored in the likes table in the cookify_db database.
+3. Clicking the like button after a post has been liked will remove the like from a post, and update the likes table in the cookify_db database.
+
+Test data will include:
+1. A like to another user's post
+2. A like to a user's own post
+3. An unlike to another user's post
+4. An unlike to a user's own post
+
+Test environment:
+1. localhost
+
+Test results:
+1. If the like is successful, then the like count of the post will increment by one, and the button will indicate that the user liked the post.
+2. If the unlike is successful, the like count of the post will decrement by one, and the button will indicate that the user has not liked the post.
+
+User acceptance testers:
+1. User acceptance testers will be the Cookify developers who did not implement the like functionality.
+
+--------Feature: Register--------
+Test cases: 
+1. User registers with a unique username and a password and (optionally) a profile picture.
+2. User registration fails if user tries to register with an already existing username.
+3. The form provides the user with specific feedback about the error.
+
+
+Acceptance criteria:
+1. User should not be able to register without completing the mandatory fields:
+  - Mandatory fields include: username, password
+2. Information from the form is stored in the users table in the cookify_db database.
+3. User should not be able to register if there is a duplicate username already existing in the users table.
+4. If the user does not provide a profile picture, the default profile picture url should be added in the profile_pic column of the users table
+
+Test data will include:
+1. A valid unique username and password
+2. A non-unique username and password
+3. Empty fields for either username and password
+4. Empty fields for both username and password
+
+Test environment:
+1. localhost
+
+Test results:
+1. If registration is successful, the user will be redirected to the login page.
+2. If the registration is unsuccessful, the user will be notified of specific feedback and prompted to register again.
+
+User acceptance testers:
+1. User acceptance testers will be the Cookify developers who did not implement the register functionality.
+

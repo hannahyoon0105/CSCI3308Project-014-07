@@ -45,6 +45,8 @@ db.connect()
     console.log('ERROR:', error.message || error);
   });
 
+
+
 // *****************************************************
 // <!-- Section 3 : App Settings -->
 // *****************************************************
@@ -72,6 +74,7 @@ app.use(
 const user = {
   username: undefined
 };
+
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
@@ -82,10 +85,11 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get('/', function (req, res) {
-  res.render('pages/home',{
-    username: req.session.user.username
+    res.render('pages/home',{
+      username: req.session.user.username
+    });
   });
-});
+
 app.get('/test', function (req, res) {
     res.redirect('/login');
   });
@@ -199,16 +203,17 @@ app.post('/register', async (req, res) => {
   
     // To-DO: Insert username and hashed password into the 'users' table
     const username = req.body.username;
-    const profile_pic = req.body.profilepic;
-    const query = 'INSERT INTO users (username, password, profile_pic) VALUES($1, $2, $3) RETURNING *;';
+    const query = 'INSERT INTO users (username, password) VALUES($1, $2) RETURNING *;';
     
-    db.one(query, [username, hash, profile_pic])
+    db.one(query, [username, hash])
         .then(data => {
-        res.redirect('/login');
+          res.redirect('/login');
+        
         })
         .catch(err => {
         console.log(err);
         res.redirect('/register');
+        
         });
     });
 
@@ -222,7 +227,6 @@ else, save the user in the session variable
 
   try {
     const login_user = await db.one('SELECT * FROM users WHERE username = $1;', [req.body.username]);
-    
     const match = await bcrypt.compare(req.body.password, login_user.password);
     
     if (match) {
@@ -255,6 +259,72 @@ const auth = (req, res, next) => {
 // Authentication Required
 app.use(auth);
 
+app.get('/home', function (req, res) {
+  const username = req.session.username;
+  db.any('SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
+    .then(posts => {
+      console.log(posts)
+      res.render('pages/home', { posts , username: req.session.user.username});
+    })
+    .catch(err => {
+      res.render('pages/home', {
+      error: true,
+      message: 'Error getting posts',
+      username: req.session.user.username});
+    });
+});
+
+app.get('/post', function (req, res) {
+  res.render('pages/post', {
+    username: req.session.user.username
+  });
+});
+
+app.post('/follow-user', async (req, res) => { //follow
+  try {
+    const { username, followee } = req.body;
+    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE username = $1 AND followee = $2', [username, followee]);
+    if (existingFollower) {
+      await db.none('DELETE FROM followers WHERE followee = $1 AND follower = $2', [username, followee]);
+      res.json({ success: true, message: 'Successfully Unfollowed' });
+    } else {
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
+      res.json({ success: true, message: 'User Followed Successfully' });
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error following user' });
+  }
+});
+
+app.post('/create-post', async (req, res) => { //post
+  try {
+    const { author, caption, recipe_id, date_created, image_url, original_flag } = req.body;
+    await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
+    res.redirect('/home'); 
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.redirect('/home'); 
+  }
+});
+
+app.post('/like-post', async (req, res) => { //like
+  try {
+    const { post_id, username } = req.body;
+    const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+    if (existingLike) {
+      await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+      res.json({ success: true, message: 'Like removed successfully' });
+    } else {
+      await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
+      res.json({ success: true, message: 'Post liked successfully' });
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error liking post' });
+  }
+});
+
 app.get('/logout', (req, res) => {
   req.session.destroy();
   res.render('pages/logout');
@@ -264,5 +334,5 @@ app.get('/logout', (req, res) => {
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+module.exports=app.listen(3000)
 console.log('Server is listening on port 3000');
