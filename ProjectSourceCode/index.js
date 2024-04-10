@@ -101,18 +101,19 @@ app.get('/login', function (req, res) {
 app.get('/register', function (req, res) {
   res.render('pages/register');
 });
+
 app.get('/home', function (req, res) {
-  db.any('SELECT * FROM posts')
+  const username = req.session.username;
+  db.any('SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
     .then(posts => {
       console.log(posts)
-      res.render('pages/home', { posts });
+      res.render('pages/home', { posts , username: req.session.user.username});
     })
-    
- .catch(err => {
-  res.render('pages/home');
+    .catch(err => {
       res.render('pages/home', {
       error: true,
-      message: 'Error getting posts'});
+      message: 'Error getting posts',
+      username: req.session.user.username});
     });
 });
 
@@ -241,7 +242,6 @@ app.post('/comment-post', function (req, res) {
     });
 });
 
-
 app.post('/register', async (req, res) => {
     //hash the password using bcrypt library
     const hash = await bcrypt.hash(req.body.password, 10);
@@ -304,20 +304,6 @@ const auth = (req, res, next) => {
 // Authentication Required
 app.use(auth);
 
-app.get('/home', function (req, res) {
-  const username = req.session.username;
-  db.any('SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
-    .then(posts => {
-      console.log(posts)
-      res.render('pages/home', { posts , username: req.session.user.username});
-    })
-    .catch(err => {
-      res.render('pages/home', {
-      error: true,
-      message: 'Error getting posts',
-      username: req.session.user.username});
-    });
-});
 
 app.get('/post', function (req, res) {
   res.render('pages/post', {

@@ -15,9 +15,14 @@
             <!-- Like, Comment, Repost Buttons -->
             <div class="post-actions">
                 <form action="/like-post" method="POST">
+                    <input type="hidden" name="post_id" value={{photo_id}}> 
+                    <input type="hidden" name="username" value={{author}}> 
                     <button class="action-button">Like</button>
                 </form>  
                 <form action="/comment-post" method="POST">
+                    <input type="hidden" name="post_id" value={{photo_id}}> 
+                    <input type="hidden" name="username" value={{author}}> 
+                    <input type="hidden" name="date_created" value={{date_created}}>
                     <label for="comment">comment</label>
                     <input type="text" id="comment" name="comment" required>
                     <button class="action-button">Comment</button>
