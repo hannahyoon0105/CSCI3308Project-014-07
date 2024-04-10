@@ -104,7 +104,7 @@ app.get('/register', function (req, res) {
 
 app.get('/home', function (req, res) {
   const username = req.session.username;
-  db.any('SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
+  db.any('SELECT p.post_id, p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
     .then(posts => {
       console.log(posts)
       res.render('pages/home', { posts });
@@ -147,6 +147,45 @@ app.post('/like-post', async (req, res) => { //like
     console.error('Error liking post:', error);
     res.status(500).json({ success: false, message: 'Error liking post' });
   }
+});
+
+app.post('/follow-user', async (req, res) => { //follow
+  try {
+    const { username, followee } = req.body;
+    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE username = $1 AND followee = $2', [username, followee]);
+    if (existingFollower) {
+      await db.none('DELETE FROM followers WHERE followee = $1 AND follower = $2', [username, followee]);
+      res.json({ success: true, message: 'Successfully Unfollowed' });
+    } else {
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
+      res.json({ success: true, message: 'User Followed Successfully' });
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error following user' });
+  }
+});
+
+app.post('/comment-post', function (req, res) { //comment
+  const query =
+    'insert into comments (post_id, username, body, date_created) values ($1, $2, $3, $4)  returning * ;';
+  db.any(query, [
+    req.body.post_id,
+    req.body.username,
+    req.body.comment,
+    req.body.date_created,
+  ])
+    .then(function (data) {
+      res.status(201).json({
+        status: 'success',
+        data: data,
+        message: 'data added successfully',
+      });
+    })
+    .catch(function (err) {
+      console.error('Error liking post:', error);
+      res.status(500).json({ success: false, message: 'Error commenting on post' });
+    });
 });
 
 app.post('/register', async (req, res) => {
