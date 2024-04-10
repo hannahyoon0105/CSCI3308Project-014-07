@@ -104,34 +104,88 @@ app.get('/register', function (req, res) {
 
 app.get('/home', function (req, res) {
   const username = req.session.username;
-  db.any('SELECT p.post_id, p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
+  db.any('SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
     .then(posts => {
       console.log(posts)
-      res.render('pages/home', { posts });
+      res.render('pages/home', { posts , username: req.session.user.username});
     })
     .catch(err => {
       res.render('pages/home', {
       error: true,
-      message: 'Error getting posts'});
+      message: 'Error getting posts',
+      username: req.session.user.username});
     });
 });
 
+app.get('/user', function(req,res) {
+  const user_query = `SELECT *
+  FROM users
+  WHERE username = $1`;
+  
+  const post_query = `SELECT *
+  FROM posts
+  WHERE author = $1
+  ORDER BY date_created DESC
+  `;
+
+  // const username = req.body.username;
+  const username = 'user3';
+
+  db.task('get-user', task => {
+    return task.batch([
+      task.any(user_query, [username]),
+      task.any(post_query, [username]),
+    ])
+  })
+  .then (userdata => {
+    console.log(userdata)
+    res.render('pages/user', {username: userdata[0][0].username, profile_picture: userdata[0][0].profile_pic});
+    // add followers, posts when we figure out db issues
+  })
+  .catch (error => {
+    console.log(error)
+    res.render('pages/user');
+  });
+  
+});
+
+app.get('/recipe', function (req, res) {
+
+  const recipe_query = `SELECT *
+  FROM RECIPES
+  INNER JOIN users ON users.username = recipes.author
+  WHERE recipe_id = $1`
+
+  const recipe_id = 14;
+
+  db.any(recipe_query, recipe_id)
+  .then (recipedata => {
+    console.log(recipedata)
+    const sqlTimeStamp = recipedata[0].date_created;
+    const jsDate = new Date(sqlTimeStamp);
+    const formattedDate = `${jsDate.toLocaleDateString()}`;
+
+    res.render('pages/recipe', {title: recipedata[0].title, author: recipedata[0].author, body: recipedata[0].body, date_created: formattedDate, profile_picture: recipedata[0].profile_pic});
+  })
+  .catch (error => {
+    console.log(error)
+    res.render('pages/recipe');
+  })
+ });
 
 app.get('/post', function (req, res) {
   res.render('pages/post');
 });
-
 app.post('/create-post', async (req, res) => { //post
   try {
     const { author, caption, recipe_id, date_created, image_url, original_flag } = req.body;
     await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
-    res.redirect('/home'); 
+    res.redirect('/home');
   } catch (error) {
     console.error('Error creating post:', error);
-    res.redirect('/home'); 
+    res.redirect('/home');
   }
 });
-
 app.post('/like-post', async (req, res) => { //like
   try {
     const { post_id, username } = req.body;
@@ -166,7 +220,7 @@ app.post('/follow-user', async (req, res) => { //follow
   }
 });
 
-app.post('/comment-post', function (req, res) { //comment
+app.post('/comment-post', function (req, res) {
   const query =
     'insert into comments (post_id, username, body, date_created) values ($1, $2, $3, $4)  returning * ;';
   db.any(query, [
@@ -194,10 +248,9 @@ app.post('/register', async (req, res) => {
   
     // To-DO: Insert username and hashed password into the 'users' table
     const username = req.body.username;
-    const profile_pic = req.body.profile_pic;
-    const query = 'INSERT INTO users (username, password, profile_pic) VALUES($1, $2, $3) RETURNING *;';
+    const query = 'INSERT INTO users (username, password) VALUES($1, $2) RETURNING *;';
     
-    db.one(query, [username, hash, profile_pic])
+    db.one(query, [username, hash])
         .then(data => {
           res.redirect('/login');
         
@@ -250,6 +303,21 @@ const auth = (req, res, next) => {
 
 // Authentication Required
 app.use(auth);
+
+
+app.get('/post', function (req, res) {
+  res.render('pages/post', {
+    username: req.session.user.username
+  });
+});
+
+
+
+
+
+
+
+
 
 app.get('/logout', (req, res) => {
   req.session.destroy();
