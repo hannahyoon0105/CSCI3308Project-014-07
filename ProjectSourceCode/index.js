@@ -242,14 +242,24 @@ app.get('/recipe', function (req, res) {
   })
  });
 
-app.post('/create-post', async (req, res) => { //post
+ app.post('/create-post', async (req, res) => { //post
   try {
-    const { author, caption, recipe_id, date_created, image_url, original_flag } = req.body;
-    await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
-    res.redirect('/home');
+    const author = req.session.user.username;
+    const title = req.body.title;
+    const body = req.body.body;
+    const date_created = new Date();
+    const caption = req.body.caption;
+    const image_url = req.body.image_url;
+    const original_flag = true;
+
+    db.one('INSERT INTO recipes (title, author, body, date_created) VALUES ($1, $2, $3, $4) RETURNING recipe_id;', [title, author, body, date_created])
+    .then(data => {
+      db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, data.recipe_id, date_created, image_url, original_flag]);
+      res.redirect('/home');
+    })
   } catch (error) {
     console.error('Error creating post:', error);
-    res.redirect('/home');
+    res.redirect('/home'); 
   }
 });
 app.post('/like-post', async (req, res) => { //like
