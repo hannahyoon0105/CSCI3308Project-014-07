@@ -6,7 +6,10 @@
         <div class="post-header">
             <h3 class="username">{{author}}</h3>
             <p class="date">{{date_created}}</p>
-            <button class="recipe-button">View Recipe</button>
+            <form action="/recipe" method="GET">
+                    <input type="hidden" name="recipe_id" value={{recipe_id}}>
+                    <button class="action-button">View Recipe</button>
+                </form> 
         </div>
         
         <div class="post-content">
