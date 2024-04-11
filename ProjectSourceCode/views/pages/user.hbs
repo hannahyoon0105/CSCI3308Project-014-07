@@ -3,9 +3,7 @@
     <div class="card-body">
     <div class="row">
     <div class="col text-left" id="profile-picture">
-        {{!-- <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkr4HamH6evM84k6_hAyVYfJadO6cDUb7PdV-XFY289A&s" class="img-thumbnail" height="100px" width="100px"
-        style="border-radius: 50%;"> --}}
-        <img src={{profile_picture}} class="img-thumbnail" height="100px" width="100px"
+        <img src="https://i.scdn.co/image/ab6761610000e5ebe1408498d7f528e3671616b1" class="img-thumbnail" height="100px" width="100px"
         style="border-radius: 50%;">
     </div>
       <div class="col text-left">
@@ -23,8 +21,21 @@
 <h1>DISPLAY FEED HERE</h1>
 <p>take feed code from home.hbs, implement when we fix post db system</p>
 {{!-- loop to display each post from a user --}}
-{{!-- {{#each}}
 
-{{/each}} --}}
+<h2>Recipes:</h2>
+{{#each recipes}}
+  <div class="card recipe">
+    <div class="card-body">
+      <h3>{{this.title}}</h3>
+      <p>Author: {{this.author}}</p>
+      <p>Date Created: {{this.date_created}}</p>
+      <p>Description: {{this.description}}</p>
+      <!-- Add other recipe details as needed -->
+    </div>
+  </div>
+{{/each}}
 
-{{> footer}} 
+<h1>DISPLAY FEED HERE</h1>
+<p>take feed code from home.hbs, implement when we fix post db system</p>
+
+{{> footer}}
