@@ -1,0 +1,13 @@
+Meeting 3 minutes
+
+Presented release notes and current product version
+
+Cory advised us to use numbers in our release notes to automatically update our issues
+
+Develop a plan for the following week, try to get it in written form by tonight for credit
+
+Note: tasks should not be so codependent, split up tasks intelligently
+
+Need to do: figure out follower/followee table, figure out 
+
+Meet next: Thursday 4/11 4pm
