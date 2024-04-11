@@ -232,15 +232,47 @@ app.get('/recipe', function (req, res) {
   WHERE recipe_id = $1`
 
   const recipe_id = req.query.recipe_id;
+  var likes_query = `
+  SELECT COUNT(username) as likes
+  FROM likes
+  WHERE post_id IN (
+  SELECT post_id
+  FROM posts
+  WHERE recipe_id = ${recipe_id})
+  ;
+  `
 
-  db.any(recipe_query, recipe_id)
-  .then (recipedata => {
-    console.log(recipedata)
-    const sqlTimeStamp = recipedata[0].date_created;
-    const jsDate = new Date(sqlTimeStamp);
-    const formattedDate = `${jsDate.toLocaleDateString()}`;
+  var reposts_query = `
+  SELECT COUNT(post_id)-1 as reposts
+  FROM posts
+  WHERE recipe_id = ${recipe_id}
+  ;
+  `
+  db.task('get-everything', task => {
+    return task.batch([
+      task.any(recipe_query, recipe_id),
+      task.any(likes_query), //query 1
+      task.any(reposts_query), //query 2
+    ]);
+  })
+    .then(recipedata => {
+      console.log(recipedata)
+      console.log(recipedata)
+      const sqlTimeStamp = recipedata[0][0].date_created;
+      const jsDate = new Date(sqlTimeStamp);
+      const formattedDate = `${jsDate.toLocaleDateString()}`;
+      const likes = recipedata[1][0].likes;
+      const reposts = recipedata[2][0].reposts;
 
-    res.render('pages/recipe', {username: req.session.user.username, recipe_id: recipedata[0].recipe_id, title: recipedata[0].title, author: recipedata[0].author, body: recipedata[0].body, date_created: formattedDate, profile_picture: recipedata[0].profile_pic});
+    res.render('pages/recipe', {username: req.session.user.username, 
+                                recipe_id: recipedata[0][0].recipe_id, 
+                                title: recipedata[0][0].title, 
+                                author: recipedata[0][0].author, 
+                                body: recipedata[0][0].body, 
+                                date_created: formattedDate, 
+                                profile_picture: recipedata[0][0].profile_pic,
+                                likes: likes,
+                                reposts: reposts});
   })
   .catch (error => {
     console.log(error)
