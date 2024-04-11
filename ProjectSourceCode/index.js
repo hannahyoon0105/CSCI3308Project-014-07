@@ -174,17 +174,35 @@ app.get('/post', function (req, res) {
 
 app.get('/home', function (req, res) {
   const username = req.session.user.username;
-  db.any(`SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag, c.username, c.body, c.date_created DC 
-  FROM followers f 
-  INNER JOIN  users u ON u.username = f.follower
-  INNER JOIN posts p ON p.author = f.followee
-  LEFT JOIN comments c ON c.post_id = p.post_id
-  WHERE u.username = $1 ORDER BY p.date_created DESC, DC desc;`, [username])
+    db.any(`
+    SELECT 
+      p.post_id,
+      p.author, 
+      p.caption, 
+      p.recipe_id, 
+      p.date_created, 
+      p.image_url, 
+      json_agg(json_build_object('username', c.username, 'body', c.body, 'date_created', c.date_created)) AS comments
+    FROM followers f 
+    INNER JOIN users u ON u.username = f.follower
+    INNER JOIN posts p ON p.author = f.followee
+    LEFT JOIN comments c ON c.post_id = p.post_id
+    WHERE u.username = $1
+    GROUP BY 
+      p.post_id,
+      p.author, 
+      p.caption, 
+      p.recipe_id, 
+      p.date_created, 
+      p.image_url
+    ORDER BY p.date_created DESC;
+  `, [username])
     .then(posts => {
       console.log(posts)
       res.render('pages/home', { posts , username: req.session.user.username});
     })
     .catch(err => {
+      console.log(err)
       res.render('pages/home', {
       error: true,
       message: 'Error getting posts',
@@ -302,15 +320,17 @@ app.post('/follow-user', async (req, res) => { //follow
 });
 
 app.post('/comment-post', function (req, res) {
+  const date_ = new Date();
   const query =
     'insert into comments (post_id, username, body, date_created) values ($1, $2, $3, $4)  returning * ;';
   db.any(query, [
     req.body.post_id,
     req.body.username,
     req.body.comment,
-    req.body.date_created,
+    date_
   ])
     .then(function (data) {
+      console.log(data)
       res.status(201).json({
         status: 'success',
         data: data,
@@ -318,7 +338,7 @@ app.post('/comment-post', function (req, res) {
       });
     })
     .catch(function (err) {
-      console.error('Error liking post:', error);
+      console.error('Error commenting on post:', err);
       res.status(500).json({ success: false, message: 'Error commenting on post' });
     });
 });
