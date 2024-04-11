@@ -5,7 +5,10 @@
         </div>
 
         <div class="col text-right">
-            <button class="btn btn-primary">Post your own version!</button>
+            <form action="/repost" method="GET">
+                    <input type="hidden" name="recipe_id" value={{recipe_id}}>
+                    <button class="action-button">Post Your Version!</button>
+            </form> 
         </div>
     </div>
 

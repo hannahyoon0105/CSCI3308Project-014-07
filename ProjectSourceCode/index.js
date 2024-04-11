@@ -230,7 +230,7 @@ app.get('/recipe', function (req, res) {
   INNER JOIN users ON users.username = recipes.author
   WHERE recipe_id = $1`
 
-  const recipe_id = 14;
+  const recipe_id = req.query.recipe_id;
 
   db.any(recipe_query, recipe_id)
   .then (recipedata => {
@@ -239,7 +239,7 @@ app.get('/recipe', function (req, res) {
     const jsDate = new Date(sqlTimeStamp);
     const formattedDate = `${jsDate.toLocaleDateString()}`;
 
-    res.render('pages/recipe', {title: recipedata[0].title, author: recipedata[0].author, body: recipedata[0].body, date_created: formattedDate, profile_picture: recipedata[0].profile_pic});
+    res.render('pages/recipe', {username: req.session.user.username, recipe_id: recipedata[0].recipe_id, title: recipedata[0].title, author: recipedata[0].author, body: recipedata[0].body, date_created: formattedDate, profile_picture: recipedata[0].profile_pic});
   })
   .catch (error => {
     console.log(error)
@@ -262,6 +262,31 @@ app.get('/recipe', function (req, res) {
       db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, data.recipe_id, date_created, image_url, original_flag]);
       res.redirect('/home');
     })
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.redirect('/home'); 
+  }
+});
+
+app.get('/repost', function (req, res) {
+  console.log(req.query);
+  res.render('pages/repost', {
+    username: req.session.user.username,
+    recipe_id: req.query.recipe_id
+  });
+});
+app.post('/repost', async (req, res) => { //post
+  try {
+    const author = req.session.user.username;
+    const title = req.body.title;
+    const date_created = new Date();
+    const caption = req.body.caption;
+    const image_url = req.body.image_url;
+    const original_flag = false;
+    const recipe_id = req.body.recipe_id;
+
+    await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
+    res.redirect('/home');
   } catch (error) {
     console.error('Error creating post:', error);
     res.redirect('/home'); 
