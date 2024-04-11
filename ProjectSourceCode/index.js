@@ -174,7 +174,12 @@ app.get('/post', function (req, res) {
 
 app.get('/home', function (req, res) {
   const username = req.session.user.username;
-  db.any('SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag FROM posts p, users u, followers f WHERE u.username = f.follower AND f.followee = p.author AND u.username = $1 ORDER BY p.date_created DESC;', [username])
+  db.any(`SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag, c.username, c.body, c.date_created DC 
+  FROM followers f 
+  INNER JOIN  users u ON u.username = f.follower
+  INNER JOIN posts p ON p.author = f.followee
+  LEFT JOIN comments c ON c.post_id = p.post_id
+  WHERE u.username = $1 ORDER BY p.date_created DESC, DC desc;`, [username])
     .then(posts => {
       console.log(posts)
       res.render('pages/home', { posts , username: req.session.user.username});
