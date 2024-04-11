@@ -203,17 +203,18 @@ app.get('/user', function(req,res) {
   ORDER BY date_created DESC
   `;
 
-  const username = req.body.user.username;
+  const testusername = 'user1'
 
   db.task('get-user', task => {
     return task.batch([
-      task.any(user_query, [username]),
-      task.any(post_query, [username]),
+      task.any(user_query, [testusername]),
+      task.any(post_query, [testusername]),
     ])
   })
+
   .then (userdata => {
     console.log(userdata)
-    res.render('pages/user', {username: userdata[0][0].username, profile_picture: userdata[0][0].profile_pic});
+    res.render('pages/user', {username: userdata[0][0].username, posts: userdata[0][1]});
     // add followers, posts when we figure out db issues
   })
   .catch (error => {
