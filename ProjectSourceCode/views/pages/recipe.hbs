@@ -5,21 +5,20 @@
         </div>
 
         <div class="col text-right">
-            <button class="btn btn-primary">Post your own version!</button>
+            <form action="/repost" method="GET">
+                    <input type="hidden" name="recipe_id" value={{recipe_id}}>
+                    <button class="action-button">Post Your Version!</button>
+            </form> 
         </div>
     </div>
 
     <div class="card-body">
         <div class="row">
             <div class="col text-left">
-                <p>_ likes • _ comments • _ reposts</p>
-                 <p>Serves: _</p>
-                <p>Prep Time: _</p>
-                <p>Cook Time: _</p>
+                <p>{{likes}} likes • {{reposts}} reposts</p>
             </div>
             <div class="col text-right">
                     <p>Created by: {{author}}</p>
-                    <img src={{profile_picture}} class="img-thumbnail" height="75px" width="75px" style="border-radius: 50%;">
                     <p>{{date_created}}</p>
             </div>
         </div>
