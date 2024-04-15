@@ -312,4 +312,5 @@ INSERT INTO likes (post_id, username) VALUES
 INSERT INTO comments (post_id, username, body, date_created) VALUES 
 (1, 'user2', 'Looks delicious!', '2024-04-12 15:02:58.379'),
 (2, 'user3', 'Yum! Will try', '2024-05-14 15:02:58.379'),
-(3, 'user1', 'Love it!!', '2024-03-01 15:02:58.379');
+(3, 'user1', 'Love it!!', '2024-03-01 15:02:58.379'),
+(3, 'user1', 'This looks heinous you should learn how to cook haha', '2024-03-01 15:02:58.379');

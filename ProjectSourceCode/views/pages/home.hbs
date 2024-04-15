@@ -6,11 +6,12 @@
         <div class="post-header">
             <h3 class="username">{{author}}</h3>
             <p class="date">{{date_created}}</p>
-            <form action="/recipe" method="POST">
-                    <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{author}}> 
-                    <button class="recipe-button">View Recipe</button>
-            </form>  
+
+            <form action="/recipe" method="GET">
+                    <input type="hidden" name="recipe_id" value={{recipe_id}}>
+                    <button class="action-button">View Recipe</button>
+                </form> 
+
         </div>
         
         <div class="post-content">
@@ -19,27 +20,28 @@
             <!-- Like, Comment, Repost Buttons -->
             <div class="post-actions">
                 <form action="/like-post" method="POST">
-                    <input type="hidden" name="post_id" value={{photo_id}}> 
+                    <input type="hidden" name="post_id" value={{post_id}}> 
                     <input type="hidden" name="username" value={{author}}> 
                     <button class="action-button">Like</button>
                 </form>  
                 <form action="/comment-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
                     <input type="hidden" name="username" value={{author}}> 
-                    <input type="hidden" name="date_created" value={{date_created}}>
-                    <label for="comment">comment</label>
-                    <input type="text" id="comment" name="comment" required>
                     <button class="action-button">Comment</button>
-                </form>   
-                <form action="/repost-post" method="POST">
-                    <button class="action-button">Repost</button>
-                </form>    
+                    <input type="text" id="comment" name="comment" required>                  
+                </form>      
             </div>
         </div>
-        <div class="comment-content">
-            <h4 class="username">{{username}}</h4>
-            <p class="date">{{DC}}</p>
-            <p class="comment">{{body}}</p>
+
+       <!-- Comments -->
+        <div class="comments">
+            {{#each comments}}
+            <div class="comment-content">
+                <h4 class="username">{{this.username}}</h4>
+                <p class="date">{{this.date_created}}</p>
+                <p class="comment">{{this.body}}</p>
+            </div>
+            {{/each}}
         </div>
     </div>
     {{/each}}

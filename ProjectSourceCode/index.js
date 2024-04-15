@@ -174,17 +174,35 @@ app.get('/post', function (req, res) {
 
 app.get('/home', function (req, res) {
   const username = req.session.user.username;
-  db.any(`SELECT p.author, p.caption, p.recipe_id, p.date_created, p.image_url, p.original_flag, c.username, c.body, c.date_created DC 
-  FROM followers f 
-  INNER JOIN  users u ON u.username = f.follower
-  INNER JOIN posts p ON p.author = f.followee
-  LEFT JOIN comments c ON c.post_id = p.post_id
-  WHERE u.username = $1 ORDER BY p.date_created DESC, DC desc;`, [username])
+    db.any(`
+    SELECT 
+      p.post_id,
+      p.author, 
+      p.caption, 
+      p.recipe_id, 
+      p.date_created, 
+      p.image_url, 
+      json_agg(json_build_object('username', c.username, 'body', c.body, 'date_created', c.date_created)) AS comments
+    FROM followers f 
+    INNER JOIN users u ON u.username = f.follower
+    INNER JOIN posts p ON p.author = f.followee
+    LEFT JOIN comments c ON c.post_id = p.post_id
+    WHERE u.username = $1
+    GROUP BY 
+      p.post_id,
+      p.author, 
+      p.caption, 
+      p.recipe_id, 
+      p.date_created, 
+      p.image_url
+    ORDER BY p.date_created DESC;
+  `, [username])
     .then(posts => {
       console.log(posts)
       res.render('pages/home', { posts , username: req.session.user.username});
     })
     .catch(err => {
+      console.log(err)
       res.render('pages/home', {
       error: true,
       message: 'Error getting posts',
@@ -203,17 +221,18 @@ app.get('/user', function(req,res) {
   ORDER BY date_created DESC
   `;
 
-  const username = req.body.user.username;
+  const testusername = 'user1'
 
   db.task('get-user', task => {
     return task.batch([
-      task.any(user_query, [username]),
-      task.any(post_query, [username]),
+      task.any(user_query, [testusername]),
+      task.any(post_query, [testusername]),
     ])
   })
+
   .then (userdata => {
     console.log(userdata)
-    res.render('pages/user', {username: userdata[0][0].username, profile_picture: userdata[0][0].profile_pic});
+    res.render('pages/user', {username: userdata[0][0].username, posts: userdata[0][1]});
     // add followers, posts when we figure out db issues
   })
   .catch (error => {
@@ -230,16 +249,48 @@ app.get('/recipe', function (req, res) {
   INNER JOIN users ON users.username = recipes.author
   WHERE recipe_id = $1`
 
-  const recipe_id = 14;
+  const recipe_id = req.query.recipe_id;
+  var likes_query = `
+  SELECT COUNT(username) as likes
+  FROM likes
+  WHERE post_id IN (
+  SELECT post_id
+  FROM posts
+  WHERE recipe_id = ${recipe_id})
+  ;
+  `
 
-  db.any(recipe_query, recipe_id)
-  .then (recipedata => {
-    console.log(recipedata)
-    const sqlTimeStamp = recipedata[0].date_created;
-    const jsDate = new Date(sqlTimeStamp);
-    const formattedDate = `${jsDate.toLocaleDateString()}`;
+  var reposts_query = `
+  SELECT COUNT(post_id)-1 as reposts
+  FROM posts
+  WHERE recipe_id = ${recipe_id}
+  ;
+  `
+  db.task('get-everything', task => {
+    return task.batch([
+      task.any(recipe_query, recipe_id),
+      task.any(likes_query), //query 1
+      task.any(reposts_query), //query 2
+    ]);
+  })
+    .then(recipedata => {
+      console.log(recipedata)
+      console.log(recipedata)
+      const sqlTimeStamp = recipedata[0][0].date_created;
+      const jsDate = new Date(sqlTimeStamp);
+      const formattedDate = `${jsDate.toLocaleDateString()}`;
+      const likes = recipedata[1][0].likes;
+      const reposts = recipedata[2][0].reposts;
 
-    res.render('pages/recipe', {title: recipedata[0].title, author: recipedata[0].author, body: recipedata[0].body, date_created: formattedDate, profile_picture: recipedata[0].profile_pic});
+    res.render('pages/recipe', {username: req.session.user.username, 
+                                recipe_id: recipedata[0][0].recipe_id, 
+                                title: recipedata[0][0].title, 
+                                author: recipedata[0][0].author, 
+                                body: recipedata[0][0].body, 
+                                date_created: formattedDate, 
+                                profile_picture: recipedata[0][0].profile_pic,
+                                likes: likes,
+                                reposts: reposts});
   })
   .catch (error => {
     console.log(error)
@@ -262,6 +313,31 @@ app.get('/recipe', function (req, res) {
       db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, data.recipe_id, date_created, image_url, original_flag]);
       res.redirect('/home');
     })
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.redirect('/home'); 
+  }
+});
+
+app.get('/repost', function (req, res) {
+  console.log(req.query);
+  res.render('pages/repost', {
+    username: req.session.user.username,
+    recipe_id: req.query.recipe_id
+  });
+});
+app.post('/repost', async (req, res) => { //post
+  try {
+    const author = req.session.user.username;
+    const title = req.body.title;
+    const date_created = new Date();
+    const caption = req.body.caption;
+    const image_url = req.body.image_url;
+    const original_flag = false;
+    const recipe_id = req.body.recipe_id;
+
+    await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
+    res.redirect('/home');
   } catch (error) {
     console.error('Error creating post:', error);
     res.redirect('/home'); 
@@ -302,15 +378,17 @@ app.post('/follow-user', async (req, res) => { //follow
 });
 
 app.post('/comment-post', function (req, res) {
+  const date_ = new Date();
   const query =
     'insert into comments (post_id, username, body, date_created) values ($1, $2, $3, $4)  returning * ;';
   db.any(query, [
     req.body.post_id,
     req.body.username,
     req.body.comment,
-    req.body.date_created,
+    date_
   ])
     .then(function (data) {
+      console.log(data)
       res.status(201).json({
         status: 'success',
         data: data,
@@ -318,7 +396,7 @@ app.post('/comment-post', function (req, res) {
       });
     })
     .catch(function (err) {
-      console.error('Error liking post:', error);
+      console.error('Error commenting on post:', err);
       res.status(500).json({ success: false, message: 'Error commenting on post' });
     });
 });
