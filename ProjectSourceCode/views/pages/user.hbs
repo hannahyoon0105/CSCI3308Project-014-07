@@ -2,10 +2,10 @@
 <div class="card">
     <div class="card-body">
     <div class="row">
-    <div class="col text-left" id="profile-picture">
-        <img src="https://i.scdn.co/image/ab6761610000e5ebe1408498d7f528e3671616b1" class="img-thumbnail" height="100px" width="100px"
+    {{!-- <div class="col text-left" id="profile-picture">
+        <img src={{profile_picture}} class="img-thumbnail" height="100px" width="100px"
         style="border-radius: 50%;">
-    </div>
+    </div> --}}
       <div class="col text-left">
         <h1>{{username}}</h1>
         <p>_ followers • _ following</p>
@@ -18,24 +18,29 @@
     </div>
   </div>
 </div>
-<h1>DISPLAY FEED HERE</h1>
-<p>take feed code from home.hbs, implement when we fix post db system</p>
 {{!-- loop to display each post from a user --}}
-
-<h2>Recipes:</h2>
-{{#each recipes}}
-  <div class="card recipe">
-    <div class="card-body">
-      <h3>{{this.title}}</h3>
-      <p>Author: {{this.author}}</p>
-      <p>Date Created: {{this.date_created}}</p>
-      <p>Description: {{this.description}}</p>
-      <!-- Add other recipe details as needed -->
+<h2>Posts:</h2>
+<div class="row">
+  {{#each posts}}
+    <div class="col">
+      <div class="card" style="width: 300px;">
+        <div class="container">
+          <div class="row justify-content-center">
+            <div class="col-md-6">  
+              <div class="embed-responsive embed-responsive-4by3">
+                <img src={{this.image_url}} class="card-img-top" width="100%" height="150px" class="img-fluid">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <h3>{{this.title}}</h3>
+          <p>{{this.caption}}</p>
+          <!-- Add other recipe details as needed -->
+        </div>
+      </div>
     </div>
-  </div>
-{{/each}}
-
-<h1>DISPLAY FEED HERE</h1>
-<p>take feed code from home.hbs, implement when we fix post db system</p>
+  {{/each}}
+</div>
 
 {{> footer}}

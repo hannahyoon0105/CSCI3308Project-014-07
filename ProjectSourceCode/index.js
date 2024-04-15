@@ -199,11 +199,13 @@ app.get('/user', function(req,res) {
   
   const post_query = `SELECT *
   FROM posts
-  WHERE author = $1
-  ORDER BY date_created DESC
+  INNER JOIN recipes
+  ON posts.recipe_id = recipes.recipe_id
+  WHERE posts.author = $1
+  ORDER BY posts.date_created DESC
   `;
 
-  const testusername = 'user1'
+  const testusername = 'user2'
 
   db.task('get-user', task => {
     return task.batch([
@@ -213,8 +215,10 @@ app.get('/user', function(req,res) {
   })
 
   .then (userdata => {
-    console.log(userdata)
-    res.render('pages/user', {username: userdata[0][0].username, posts: userdata[0][1]});
+    // console.log(userdata)
+
+    console.log(userdata[1])
+    res.render('pages/user', {username: userdata[0][0].username, posts: userdata[1]});
     // add followers, posts when we figure out db issues
   })
   .catch (error => {
@@ -257,10 +261,10 @@ app.get('/recipe', function (req, res) {
   })
     .then(recipedata => {
       console.log(recipedata)
-      console.log(recipedata)
       const sqlTimeStamp = recipedata[0][0].date_created;
-      const jsDate = new Date(sqlTimeStamp);
-      const formattedDate = `${jsDate.toLocaleDateString()}`;
+      // const jsDate = new Date(sqlTimeStamp);
+      // const formattedDate = `${jsDate.toLocaleDateString()}`;
+      const formattedDate = formatSQLDate(sqlTimeStamp);
       const likes = recipedata[1][0].likes;
       const reposts = recipedata[2][0].reposts;
 
@@ -383,11 +387,6 @@ app.post('/comment-post', function (req, res) {
 
 
 
-
-
-
-
-
 app.get('/logout', (req, res) => {
   req.session.destroy();
   res.render('pages/logout');
@@ -399,3 +398,15 @@ app.get('/logout', (req, res) => {
 // starting the server and keeping the connection open to listen for more requests
 module.exports=app.listen(3000)
 console.log('Server is listening on port 3000');
+
+
+// *****************************************************
+// <!-- MISC FUNCTIONS -->
+// *****************************************************
+
+//converts SQL TIMESTAMP datatype to MM/DD/YYYY format
+const formatSQLDate = (sqlTimeStamp) => {
+  const jsDate = new Date(sqlTimeStamp);
+
+  return `${jsDate.toLocaleDateString()}`;
+}
