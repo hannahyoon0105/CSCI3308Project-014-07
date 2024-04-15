@@ -315,4 +315,5 @@ INSERT INTO comments (post_id, username, body, date_created) VALUES
 (3, 'user1', 'Love it!!', '2024-03-01 15:02:58.379'),
 (3, 'user1', 'This looks heinous you should learn how to cook haha', '2024-03-01 15:02:58.379'),
 (5, 'user3', 'Lets try this out','2024-05-01 12:02:58.379' ),
-(5, 'user1', 'Cannot wait to make this on my own!','2024-03-01 12:02:58.379' );
+(5, 'user1', 'Cannot wait to make this on my own!','2024-03-01 12:02:58.379' ),
+(7, 'user2', 'MMMMMM!!!','2024-07-01 12:02:58.379' );

@@ -173,36 +173,42 @@ app.get('/post', function (req, res) {
 
 
 app.get('/home', function (req, res) {
+  res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   const username = req.session.user.username;
   const message = req.query.message
     db.any(`
     SELECT 
-      p.post_id,
-      p.author, 
+    P.post_id, 
+     p.author, 
       p.caption, 
       p.recipe_id, 
       p.date_created, 
       p.image_url, 
       EXISTS (
-        SELECT 1 FROM likes WHERE post_id = p.post_id AND username = $1
-    ) AS liked,    
-      COALESCE(json_agg(json_build_object('username', c.username, 'body', c.body, 'date_created', c.date_created)), '[]') AS comments
-    FROM followers f 
-    INNER JOIN users u ON u.username = f.follower
-    INNER JOIN posts p ON p.author = f.followee
-    INNER JOIN likes l ON l.post_id = p.post_id
+    SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
+) AS liked,
+json_agg(
+  json_build_object(
+      'username', c.username, 
+      'body', c.body, 
+      'date_created', c.date_created
+  ) 
+  ORDER BY c.date_created DESC
+) AS comments
+    FROM posts p 
+    INNER JOIN followers f ON f.followee = p.author 
+    INNER JOIN users u ON u.username = f.follower 
     LEFT JOIN comments c ON c.post_id = p.post_id
     WHERE u.username = $1
-    GROUP BY 
-      p.post_id,
-      p.author, 
+ GROUP BY 
+ P.post_id, 
+     p.author, 
       p.caption, 
       p.recipe_id, 
       p.date_created, 
-      p.image_url,
-      liked
-    ORDER BY p.date_created DESC;
-  `, [username])
+      p.image_url
+ORDER BY 
+p.date_created DESC;`, [username])
     .then(posts => {
       posts.forEach(post => {
         console.log('Post:', post);
@@ -354,6 +360,7 @@ app.post('/repost', async (req, res) => { //post
 app.post('/like-post', async (req, res) => { //like
   try {
     const { post_id, username } = req.body;
+    console.log(req.body);
     const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
     if (existingLike) {
       await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);

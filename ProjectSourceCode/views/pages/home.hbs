@@ -22,7 +22,7 @@
             <div class="post-actions">
                 <form action="/like-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{author}}> 
+                    <input type="hidden" name="username" value={{../username}}> 
                     {{#if liked}}
                         <button class="like-button liked">Liked</button>
                     {{else}}
