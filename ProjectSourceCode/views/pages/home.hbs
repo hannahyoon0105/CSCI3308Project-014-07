@@ -1,5 +1,6 @@
 <!-- Main Feed -->
 <div class="main-feed">
+    <h3>{{> message}}</h3>
     {{#each posts}}
     <!-- Post Card -->
     <div class="post-card">
@@ -22,7 +23,11 @@
                 <form action="/like-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
                     <input type="hidden" name="username" value={{author}}> 
-                    <button class="action-button">Like</button>
+                    {{#if liked}}
+                        <button class="like-button liked">Liked</button>
+                    {{else}}
+                         <button class="like-button">❤️ Like</button>
+                    {{/if}}
                 </form>  
                 <form action="/comment-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 

@@ -174,6 +174,7 @@ app.get('/post', function (req, res) {
 
 app.get('/home', function (req, res) {
   const username = req.session.user.username;
+  const message = req.query.message
     db.any(`
     SELECT 
       p.post_id,
@@ -182,10 +183,14 @@ app.get('/home', function (req, res) {
       p.recipe_id, 
       p.date_created, 
       p.image_url, 
-      json_agg(json_build_object('username', c.username, 'body', c.body, 'date_created', c.date_created)) AS comments
+      EXISTS (
+        SELECT 1 FROM likes WHERE post_id = p.post_id AND username = $1
+    ) AS liked,    
+      COALESCE(json_agg(json_build_object('username', c.username, 'body', c.body, 'date_created', c.date_created)), '[]') AS comments
     FROM followers f 
     INNER JOIN users u ON u.username = f.follower
     INNER JOIN posts p ON p.author = f.followee
+    INNER JOIN likes l ON l.post_id = p.post_id
     LEFT JOIN comments c ON c.post_id = p.post_id
     WHERE u.username = $1
     GROUP BY 
@@ -194,15 +199,18 @@ app.get('/home', function (req, res) {
       p.caption, 
       p.recipe_id, 
       p.date_created, 
-      p.image_url
+      p.image_url,
+      liked
     ORDER BY p.date_created DESC;
   `, [username])
     .then(posts => {
-      console.log(posts)
-      res.render('pages/home', { posts , username: req.session.user.username});
+      posts.forEach(post => {
+        console.log('Post:', post);
+      });
+      res.render('pages/home', { posts , username: req.session.user.username, message});
     })
     .catch(err => {
-      console.log(err)
+      console.log(err);
       res.render('pages/home', {
       error: true,
       message: 'Error getting posts',
@@ -349,14 +357,14 @@ app.post('/like-post', async (req, res) => { //like
     const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
     if (existingLike) {
       await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
-      res.json({ success: true, message: 'Like removed successfully' });
+      res.redirect('/home?message=Like%20Removed%20Successfully');
     } else {
       await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
-      res.json({ success: true, message: 'Post liked successfully' });
+      res.redirect('/home?message=Post%20Liked%20Successfully');
     }
   } catch (error) {
     console.error('Error liking post:', error);
-    res.status(500).json({ success: false, message: 'Error liking post' });
+    res.redirect('/home?message=Error%20Liking%20Post');
   }
 });
 
@@ -389,23 +397,13 @@ app.post('/comment-post', function (req, res) {
   ])
     .then(function (data) {
       console.log(data)
-      res.status(201).json({
-        status: 'success',
-        data: data,
-        message: 'data added successfully',
-      });
+      res.redirect('/home?message=Comment%20posted%20successfully');
     })
     .catch(function (err) {
       console.error('Error commenting on post:', err);
-      res.status(500).json({ success: false, message: 'Error commenting on post' });
+      res.redirect('/home?message=Comment%20posted%20Unsuccessfully');
     });
 });
-
-
-
-
-
-
 
 
 app.get('/logout', (req, res) => {
