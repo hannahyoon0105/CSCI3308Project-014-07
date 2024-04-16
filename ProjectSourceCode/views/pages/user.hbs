@@ -5,13 +5,12 @@
   
       <div class="col text-left">
         <h1>{{user}}</h1>
-        <p>_ followers • _ following</p>
+        <p>{{followers}} followers • {{following}} following</p>
       </div>
       <div class="col text-left"></div>
       <div class="col text-left"></div>
       <div class="col text-right">
         {{#if self}}
-        
         {{else}}
         <button id="follow-button" class="btn btn-lg btn-primary">Follow</button>
         {{/if}}
@@ -37,35 +36,8 @@
         <div class="post-content">
             <img src="{{image_url}}" alt="Posted Photo" class="post-photo">
             <p class="caption">{{caption}}</p>
-            <!-- Like, Comment, Repost Buttons -->
-            <div class="post-actions">
-                <form action="/like-post" method="POST">
-                    <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{author}}> 
-                    {{#if liked}}
-                        <button class="like-button liked">Liked</button>
-                    {{else}}
-                         <button class="like-button">❤️ Like</button>
-                    {{/if}}
-                </form>  
-                <form action="/comment-post" method="POST">
-                    <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{author}}> 
-                    <button class="action-button">Comment</button>
-                    <input type="text" id="comment" name="comment" required>                  
-                </form>      
-            </div>
+            
         </div>
 
-       <!-- Comments -->
-        <div class="comments">
-            {{#each comments}}
-            <div class="comment-content">
-                <h4 class="username">{{this.username}}</h4>
-                <p class="date">{{this.date_created}}</p>
-                <p class="comment">{{this.body}}</p>
-            </div>
-            {{/each}}
-        </div>
     </div>
 {{/each}}
