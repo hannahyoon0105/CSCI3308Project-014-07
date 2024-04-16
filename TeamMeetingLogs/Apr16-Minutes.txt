@@ -1,0 +1,14 @@
+Meeting 4 minutes
+
+Hannah presented release 3.0, showed current project
+Each group member presented their changes
+
+Cory's advice:
+- Make sure all our tasks in done column are done and closed
+- Try to have the project completely done by next week
+- Next week’s meeting is OPTIONAL but encouraged to practice presentation with Cory
+- After login, make sure to redirect to homepage or make localhost:3000/ the homepage
+- Try to make some design changes to solidify page layout and theme
+- Fix date object/formatting
+
+We are hosting the application this Thursday, so have an up to date and solid version prepared
