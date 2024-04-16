@@ -419,7 +419,7 @@ app.post('/comment-post', function (req, res) {
 
 app.get('/logout', (req, res) => {
   req.session.destroy();
-  res.render('pages/logout');
+  res.render('pages/logout', {message: 'Logged out successfully!'});
 });
 
 // *****************************************************
