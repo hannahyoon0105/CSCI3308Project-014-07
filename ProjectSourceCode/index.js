@@ -173,36 +173,42 @@ app.get('/post', function (req, res) {
 
 
 app.get('/home', function (req, res) {
+  res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   const username = req.session.user.username;
   const message = req.query.message
     db.any(`
     SELECT 
-      p.post_id,
-      p.author, 
+    P.post_id, 
+     p.author, 
       p.caption, 
       p.recipe_id, 
       p.date_created, 
       p.image_url, 
       EXISTS (
-        SELECT 1 FROM likes WHERE post_id = p.post_id AND username = $1
-    ) AS liked,    
-      COALESCE(json_agg(json_build_object('username', c.username, 'body', c.body, 'date_created', c.date_created)), '[]') AS comments
-    FROM followers f 
-    INNER JOIN users u ON u.username = f.follower
-    INNER JOIN posts p ON p.author = f.followee
-    INNER JOIN likes l ON l.post_id = p.post_id
+    SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
+) AS liked,
+json_agg(
+  json_build_object(
+      'username', c.username, 
+      'body', c.body, 
+      'date_created', c.date_created
+  ) 
+  ORDER BY c.date_created DESC
+) AS comments
+    FROM posts p 
+    INNER JOIN followers f ON f.followee = p.author 
+    INNER JOIN users u ON u.username = f.follower 
     LEFT JOIN comments c ON c.post_id = p.post_id
     WHERE u.username = $1
-    GROUP BY 
-      p.post_id,
-      p.author, 
+ GROUP BY 
+ P.post_id, 
+     p.author, 
       p.caption, 
       p.recipe_id, 
       p.date_created, 
-      p.image_url,
-      liked
-    ORDER BY p.date_created DESC;
-  `, [username])
+      p.image_url
+ORDER BY 
+p.date_created DESC;`, [username])
     .then(posts => {
       posts.forEach(post => {
         console.log('Post:', post);
@@ -221,35 +227,51 @@ app.get('/home', function (req, res) {
 app.get('/user', function(req,res) {
   const user_query = `SELECT *
   FROM users
-  WHERE username = $1`;
+  WHERE username = '${req.query.username}';`;
   
   const post_query = `SELECT *
   FROM posts
   INNER JOIN recipes
   ON posts.recipe_id = recipes.recipe_id
-  WHERE posts.author = $1
-  ORDER BY posts.date_created DESC
+  WHERE posts.author = '${req.query.username}'
+  ORDER BY posts.date_created DESC;
   `;
 
-  const testusername = 'user2'
+  const followers_q = `SELECT COUNT(follower) as count
+  FROM followers
+  WHERE followee = '${req.query.username}'
+  ;
+  `;
 
-  db.task('get-user', task => {
+  const following_q = `SELECT COUNT(followee) as count
+  FROM followers
+  WHERE follower = '${req.query.username}'
+  ;
+  `;
+
+
+  db.task('get-everything', task => {
     return task.batch([
-      task.any(user_query, [testusername]),
-      task.any(post_query, [testusername]),
+      task.any(user_query),
+      task.any(post_query),
+      task.any(followers_q),
+      task.any(following_q)
     ])
   })
-
   .then (userdata => {
-    // console.log(userdata)
-
-    console.log(userdata[1])
-    res.render('pages/user', {username: userdata[0][0].username, posts: userdata[1]});
+    console.log(userdata)
+    res.render('pages/user', 
+    {user: userdata[0][0].username, 
+      posts: userdata[1],
+      followers: userdata[2][0].count,
+      following: userdata[3][0].count,
+      username: req.session.user.username,
+      self: req.query.self});
     // add followers, posts when we figure out db issues
   })
   .catch (error => {
     console.log(error)
-    res.render('pages/user');
+    res.render('pages/home', {username: req.session.user.username, message: "User Not Found"});
   });
   
 });
@@ -358,6 +380,7 @@ app.post('/repost', async (req, res) => { //post
 app.post('/like-post', async (req, res) => { //like
   try {
     const { post_id, username } = req.body;
+    console.log(req.body);
     const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
     if (existingLike) {
       await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
@@ -412,7 +435,7 @@ app.post('/comment-post', function (req, res) {
 
 app.get('/logout', (req, res) => {
   req.session.destroy();
-  res.render('pages/logout');
+  res.render('pages/logout', {message: 'Logged out successfully!'});
 });
 
 // *****************************************************

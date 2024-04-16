@@ -7,13 +7,16 @@
         style="border-radius: 50%;">
     </div> --}}
       <div class="col text-left">
-        <h1>{{username}}</h1>
-        <p>_ followers • _ following</p>
+        <h1>{{user}}</h1>
+        <p>{{followers}} followers • {{following}} following</p>
       </div>
       <div class="col text-left"></div>
       <div class="col text-left"></div>
       <div class="col text-right">
+        {{#if self}}
+        {{else}}
         <button id="follow-button" class="btn btn-lg btn-primary">Follow</button>
+        {{/if}}
       </div>
     </div>
   </div>

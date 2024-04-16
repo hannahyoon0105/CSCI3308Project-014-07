@@ -5,7 +5,10 @@
     <!-- Post Card -->
     <div class="post-card">
         <div class="post-header">
-            <h3 class="username">{{author}}</h3>
+            <form action="/user" method="GET">
+                    <input type="hidden" name="username" value={{author}}>
+                    <button class="btn">{{author}}</button>
+            </form> 
             <p class="date">{{date_created}}</p>
 
             <form action="/recipe" method="GET">
@@ -22,7 +25,7 @@
             <div class="post-actions">
                 <form action="/like-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{author}}> 
+                    <input type="hidden" name="username" value={{../username}}> 
                     {{#if liked}}
                         <button class="like-button liked">Liked</button>
                     {{else}}

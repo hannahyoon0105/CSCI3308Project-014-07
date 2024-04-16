@@ -277,7 +277,7 @@ Enjoy your delicious and healthy grilled salmon! It is perfect for a quick and f
 
 -- POSTS
 INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES 
-('user1', 'Enjoying chocolate cake tonight!', 1, '2024-04-11 15:02:58.379', 'https://www.google.com/imgres?q=chocolate%20cake&imgurl=https%3A%2F%2Fscientificallysweet.com%2Fwp-content%2Fuploads%2F2020%2F09%2FIMG_4087-feature-2-500x500.jpg&imgrefurl=https%3A%2F%2Fscientificallysweet.com%2Fthe-best-moist-chocolate-cake%2F&docid=_4ZIdm4Fc76rSM&tbnid=WHHnj03ZjhN9NM&vet=12ahUKEwjqpM72urqFAxVUJzQIHRrdCAAQM3oECGUQAA..i&w=500&h=500&hcb=2&ved=2ahUKEwjqpM72urqFAxVUJzQIHRrdCAAQM3oECGUQAA', TRUE),
+('user1', 'Enjoying chocolate cake tonight!', 1, '2024-04-11 15:02:58.379', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbYO6tnJHEnEiMT5fgVeMxkpoLdz-zfMfMOOgYkWgkk7gQ570Hzlu9IX8WtXGCTJagEEE&usqp=CAU', TRUE),
 ('user1', 'Pasta Carbonara for everyday!', 2, '2024-05-13 15:02:58.379', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsCbiw1YFTw8gzy1-CNFn1-Es3RsP9sthwo2LIKZutXQ&s', TRUE),
 ('user2', 'Best Chicken and Rice Ever!', 3, '2024-02-20 15:02:58.379', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6V2gHpBcb5MkIm_2-3AFSsTQLC4Sa5ymlI3qUHv5onw&s', TRUE),
 ('user2', 'Meatball Recipe', 4, '2024-04-13 15:02:58.379', 'https://www.thereciperebel.com/wp-content/uploads/2021/02/meatball-recipe-www.thereciperebel.com-600-20-of-21.jpg', TRUE),
@@ -315,4 +315,5 @@ INSERT INTO comments (post_id, username, body, date_created) VALUES
 (3, 'user1', 'Love it!!', '2024-03-01 15:02:58.379'),
 (3, 'user1', 'This looks heinous you should learn how to cook haha', '2024-03-01 15:02:58.379'),
 (5, 'user3', 'Lets try this out','2024-05-01 12:02:58.379' ),
-(5, 'user1', 'Cannot wait to make this on my own!','2024-03-01 12:02:58.379' );
+(5, 'user1', 'Cannot wait to make this on my own!','2024-03-01 12:02:58.379' ),
+(7, 'user2', 'MMMMMM!!!','2024-07-01 12:02:58.379' );
