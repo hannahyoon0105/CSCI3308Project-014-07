@@ -2,40 +2,70 @@
 <div class="card">
     <div class="card-body">
     <div class="row">
-    <div class="col text-left" id="profile-picture">
-        <img src="https://i.scdn.co/image/ab6761610000e5ebe1408498d7f528e3671616b1" class="img-thumbnail" height="100px" width="100px"
-        style="border-radius: 50%;">
-    </div>
+  
       <div class="col text-left">
-        <h1>{{username}}</h1>
+        <h1>{{user}}</h1>
         <p>_ followers • _ following</p>
       </div>
       <div class="col text-left"></div>
       <div class="col text-left"></div>
       <div class="col text-right">
+        {{#if self}}
+        
+        {{else}}
         <button id="follow-button" class="btn btn-lg btn-primary">Follow</button>
+        {{/if}}
       </div>
     </div>
   </div>
 </div>
-<h1>DISPLAY FEED HERE</h1>
-<p>take feed code from home.hbs, implement when we fix post db system</p>
 {{!-- loop to display each post from a user --}}
 
-<h2>Recipes:</h2>
-{{#each recipes}}
-  <div class="card recipe">
-    <div class="card-body">
-      <h3>{{this.title}}</h3>
-      <p>Author: {{this.author}}</p>
-      <p>Date Created: {{this.date_created}}</p>
-      <p>Description: {{this.description}}</p>
-      <!-- Add other recipe details as needed -->
+<h2>Posts:</h2>
+{{#each posts}}
+  <div class="post-card">
+        <div class="post-header">
+            <p class="date">{{date_created}}</p>
+
+            <form action="/recipe" method="GET">
+                    <input type="hidden" name="recipe_id" value={{recipe_id}}>
+                    <button class="action-button">View Recipe</button>
+            </form> 
+
+        </div>
+        
+        <div class="post-content">
+            <img src="{{image_url}}" alt="Posted Photo" class="post-photo">
+            <p class="caption">{{caption}}</p>
+            <!-- Like, Comment, Repost Buttons -->
+            <div class="post-actions">
+                <form action="/like-post" method="POST">
+                    <input type="hidden" name="post_id" value={{post_id}}> 
+                    <input type="hidden" name="username" value={{author}}> 
+                    {{#if liked}}
+                        <button class="like-button liked">Liked</button>
+                    {{else}}
+                         <button class="like-button">❤️ Like</button>
+                    {{/if}}
+                </form>  
+                <form action="/comment-post" method="POST">
+                    <input type="hidden" name="post_id" value={{post_id}}> 
+                    <input type="hidden" name="username" value={{author}}> 
+                    <button class="action-button">Comment</button>
+                    <input type="text" id="comment" name="comment" required>                  
+                </form>      
+            </div>
+        </div>
+
+       <!-- Comments -->
+        <div class="comments">
+            {{#each comments}}
+            <div class="comment-content">
+                <h4 class="username">{{this.username}}</h4>
+                <p class="date">{{this.date_created}}</p>
+                <p class="comment">{{this.body}}</p>
+            </div>
+            {{/each}}
+        </div>
     </div>
-  </div>
 {{/each}}
-
-<h1>DISPLAY FEED HERE</h1>
-<p>take feed code from home.hbs, implement when we fix post db system</p>
-
-{{> footer}}

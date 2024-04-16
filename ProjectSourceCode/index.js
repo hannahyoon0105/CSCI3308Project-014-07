@@ -221,31 +221,35 @@ app.get('/home', function (req, res) {
 app.get('/user', function(req,res) {
   const user_query = `SELECT *
   FROM users
-  WHERE username = $1`;
+  WHERE username = '${req.query.username}';`;
   
   const post_query = `SELECT *
   FROM posts
-  WHERE author = $1
-  ORDER BY date_created DESC
+  WHERE author = '${req.query.username}'
+  ORDER BY date_created DESC;
   `;
 
-  const testusername = 'user1'
+  
 
-  db.task('get-user', task => {
+
+  db.task('get-everything', task => {
     return task.batch([
-      task.any(user_query, [testusername]),
-      task.any(post_query, [testusername]),
+      task.any(user_query),
+      task.any(post_query)
     ])
   })
-
   .then (userdata => {
-    console.log(userdata)
-    res.render('pages/user', {username: userdata[0][0].username, posts: userdata[0][1]});
+    console.log(userdata[0])
+    res.render('pages/user', 
+    {user: userdata[0][0].username, 
+      posts: userdata[1],
+      username: req.session.user.username,
+      self: req.query.self});
     // add followers, posts when we figure out db issues
   })
   .catch (error => {
     console.log(error)
-    res.render('pages/user');
+    res.render('pages/home', {username: req.session.user.username, message: "User Not Found"});
   });
   
 });
