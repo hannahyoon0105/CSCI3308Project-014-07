@@ -235,20 +235,34 @@ app.get('/user', function(req,res) {
   ORDER BY date_created DESC;
   `;
 
-  
+  const followers_q = `SELECT COUNT(follower) as count
+  FROM followers
+  WHERE followee = '${req.query.username}'
+  ;
+  `;
+
+  const following_q = `SELECT COUNT(followee) as count
+  FROM followers
+  WHERE follower = '${req.query.username}'
+  ;
+  `;
 
 
   db.task('get-everything', task => {
     return task.batch([
       task.any(user_query),
-      task.any(post_query)
+      task.any(post_query),
+      task.any(followers_q),
+      task.any(following_q)
     ])
   })
   .then (userdata => {
-    console.log(userdata[0])
+    console.log(userdata)
     res.render('pages/user', 
     {user: userdata[0][0].username, 
       posts: userdata[1],
+      followers: userdata[2][0].count,
+      following: userdata[3][0].count,
       username: req.session.user.username,
       self: req.query.self});
     // add followers, posts when we figure out db issues
