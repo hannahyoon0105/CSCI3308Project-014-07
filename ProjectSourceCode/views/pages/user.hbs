@@ -19,28 +19,30 @@
   </div>
 </div>
 {{!-- loop to display each post from a user --}}
-<h2>Posts:</h2>
-<div class="row">
-  {{#each posts}}
-    <div class="col">
-      <div class="card" style="width: 300px;">
-        <div class="container">
-          <div class="row justify-content-center">
-            <div class="col-md-6">  
-              <div class="embed-responsive embed-responsive-4by3">
-                <img src={{this.image_url}} class="card-img-top" width="100%" height="150px" class="img-fluid">
+<div style="margin: 2rem;">
+  <h2>Posts:</h2>
+  <div class="row">
+    {{#each posts}}
+      <div class="col">
+        <div class="card" style="width: 300px;">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-md-6">  
+                <div class="embed-responsive embed-responsive-4by3">
+                  <img src={{this.image_url}} class="card-img-top" width="100%" height="150px" class="img-fluid">
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="card-body">
-          <h3>{{this.title}}</h3>
-          <p>{{this.caption}}</p>
-          <!-- Add other recipe details as needed -->
+          <div class="card-body">
+            <h3>{{this.title}}</h3>
+            <p>{{this.caption}}</p>
+            <!-- Add other recipe details as needed -->
+          </div>
         </div>
       </div>
-    </div>
-  {{/each}}
+    {{/each}}
+  </div>
 </div>
 
 {{> footer}}
