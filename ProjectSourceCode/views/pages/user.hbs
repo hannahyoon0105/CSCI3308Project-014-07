@@ -2,7 +2,10 @@
 <div class="card">
     <div class="card-body">
     <div class="row">
-  
+    {{!-- <div class="col text-left" id="profile-picture">
+        <img src={{profile_picture}} class="img-thumbnail" height="100px" width="100px"
+        style="border-radius: 50%;">
+    </div> --}}
       <div class="col text-left">
         <h1>{{user}}</h1>
         <p>{{followers}} followers • {{following}} following</p>
@@ -19,25 +22,30 @@
   </div>
 </div>
 {{!-- loop to display each post from a user --}}
-
-<h2>Posts:</h2>
-{{#each posts}}
-  <div class="post-card">
-        <div class="post-header">
-            <p class="date">{{date_created}}</p>
-
-            <form action="/recipe" method="GET">
-                    <input type="hidden" name="recipe_id" value={{recipe_id}}>
-                    <button class="action-button">View Recipe</button>
-            </form> 
-
+<div style="margin: 2rem;">
+  <h2>Posts:</h2>
+  <div class="row">
+    {{#each posts}}
+      <div class="col">
+        <div class="card" style="width: 300px;">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-md-6">  
+                <div class="embed-responsive embed-responsive-4by3">
+                  <img src={{this.image_url}} class="card-img-top" width="100%" height="150px" class="img-fluid">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <h3>{{this.title}}</h3>
+            <p>{{this.caption}}</p>
+            <!-- Add other recipe details as needed -->
+          </div>
         </div>
-        
-        <div class="post-content">
-            <img src="{{image_url}}" alt="Posted Photo" class="post-photo">
-            <p class="caption">{{caption}}</p>
-            
-        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>
 
-    </div>
-{{/each}}
+{{> footer}}

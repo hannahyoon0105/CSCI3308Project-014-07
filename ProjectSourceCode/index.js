@@ -231,8 +231,10 @@ app.get('/user', function(req,res) {
   
   const post_query = `SELECT *
   FROM posts
-  WHERE author = '${req.query.username}'
-  ORDER BY date_created DESC;
+  INNER JOIN recipes
+  ON posts.recipe_id = recipes.recipe_id
+  WHERE posts.author = '${req.query.username}'
+  ORDER BY posts.date_created DESC;
   `;
 
   const followers_q = `SELECT COUNT(follower) as count
@@ -307,10 +309,10 @@ app.get('/recipe', function (req, res) {
   })
     .then(recipedata => {
       console.log(recipedata)
-      console.log(recipedata)
       const sqlTimeStamp = recipedata[0][0].date_created;
-      const jsDate = new Date(sqlTimeStamp);
-      const formattedDate = `${jsDate.toLocaleDateString()}`;
+      // const jsDate = new Date(sqlTimeStamp);
+      // const formattedDate = `${jsDate.toLocaleDateString()}`;
+      const formattedDate = formatSQLDate(sqlTimeStamp);
       const likes = recipedata[1][0].likes;
       const reposts = recipedata[2][0].reposts;
 
@@ -442,3 +444,15 @@ app.get('/logout', (req, res) => {
 // starting the server and keeping the connection open to listen for more requests
 module.exports=app.listen(3000)
 console.log('Server is listening on port 3000');
+
+
+// *****************************************************
+// <!-- MISC FUNCTIONS -->
+// *****************************************************
+
+//converts SQL TIMESTAMP datatype to MM/DD/YYYY format
+const formatSQLDate = (sqlTimeStamp) => {
+  const jsDate = new Date(sqlTimeStamp);
+
+  return `${jsDate.toLocaleDateString()}`;
+}
