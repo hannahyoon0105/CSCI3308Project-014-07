@@ -19,7 +19,7 @@ CREATE TABLE posts (
     caption VARCHAR(200),
     recipe_id INTEGER NOT NULL REFERENCES recipes(recipe_id),
     date_created TIMESTAMP NOT NULL, 
-    image_url VARCHAR(200) NOT NULL,
+    image_url VARCHAR(2000) NOT NULL,
     original_flag BOOLEAN NOT NULL
 );
 
@@ -42,5 +42,3 @@ CREATE TABLE comments (
     body TEXT NOT NULL,
     date_created TIMESTAMP NOT NULL
 );
-
-INSERT INTO users (username, password, profile_pic) VALUES ('user', 'password123', 'jon.com'); 

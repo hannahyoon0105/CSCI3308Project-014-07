@@ -1,12 +1,108 @@
+<style>
+    .main-feed {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .post-card {
+        width: 60%; /* Adjust as needed */
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .post-content {
+        padding: 10px;
+    }
+
+    .post-photo-container {
+        width: 100%;
+        height: 200px; /* Fixed height for photos */
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .post-photo {
+        max-width: 100%;
+        max-height: 100%;
+        margin-top: 10px; 
+        margin-bottom: 10px; 
+        margin-left: 250px; 
+        margin-right: 30px 
+    }
+
+    .caption {
+        margin-top: 8px;
+        margin-left: 250px;
+        font-size: 0.9em;
+    }
+
+    .post-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    .like-button,
+    .action-button {
+        padding: 4px 8px;
+        cursor: pointer;
+        font-size: 0.8em;
+    }
+
+    .comments {
+        margin-top: 8px;
+    }
+
+    .comment-content {
+        border-top: 1px solid #ccc;
+        padding: 8px;
+    }
+
+    .username {
+        font-weight: bold;
+        margin-bottom: 4px;
+        font-size: 0.9em;
+    }
+
+    .date {
+        color: #777;
+        font-size: 0.8em;
+    }
+</style>
+
+
 <!-- Main Feed -->
 <div class="main-feed">
+    <h3>{{> message}}</h3>
     {{#each posts}}
     <!-- Post Card -->
     <div class="post-card">
         <div class="post-header">
-            <h3 class="username">{{author}}</h3>
+            <form action="/user" method="GET">
+                    <input type="hidden" name="username" value={{author}}>
+                    <button class="btn">{{author}}</button>
+            </form> 
             <p class="date">{{date_created}}</p>
-            <button class="recipe-button">View Recipe</button>
+
+            <form action="/recipe" method="GET">
+                    <input type="hidden" name="recipe_id" value={{recipe_id}}>
+                    <button class="action-button">View Recipe</button>
+                </form> 
+
         </div>
         
         <div class="post-content">
@@ -14,10 +110,33 @@
             <p class="caption">{{caption}}</p>
             <!-- Like, Comment, Repost Buttons -->
             <div class="post-actions">
-                <button class="action-button">Like</button>
-                <button class="action-button">Comment</button>
-                <button class="action-button">Repost</button>
+                <form action="/like-post" method="POST">
+                    <input type="hidden" name="post_id" value={{post_id}}> 
+                    <input type="hidden" name="username" value={{../username}}> 
+                    {{#if liked}}
+                        <button class="like-button liked">Liked</button>
+                    {{else}}
+                         <button class="like-button">❤️ Like</button>
+                    {{/if}}
+                </form>  
+                <form action="/comment-post" method="POST">
+                    <input type="hidden" name="post_id" value={{post_id}}> 
+                    <input type="hidden" name="username" value={{author}}> 
+                    <button class="action-button">Comment</button>
+                    <input type="text" id="comment" name="comment" required>                  
+                </form>      
             </div>
+        </div>
+
+       <!-- Comments -->
+        <div class="comments">
+            {{#each comments}}
+            <div class="comment-content">
+                <h4 class="username">{{this.username}}</h4>
+                <p class="date">{{this.date_created}}</p>
+                <p class="comment">{{this.body}}</p>
+            </div>
+            {{/each}}
         </div>
     </div>
     {{/each}}

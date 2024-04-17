@@ -4,8 +4,9 @@
     </div>
 
     <div class="col-sm">
-      <h1>Create Post</h1>
-      <form action="/create-post" method="POST"> 
+      <h1>Repost</h1>
+
+      <form action="/repost" method="POST"> 
         <div class="form-group">
           <label for="caption">Caption:</label>
           <input type="text" id="caption" name="caption" class="form-control">
@@ -14,12 +15,7 @@
           <label for="image_url">Image URL:</label>
           <input type="text" id="image_url" name="image_url" class="form-control" required>
         </div>
-        <h4>Recipe Information</h4>
-        <label for="title">Recipe Name:</label>
-        <input type="text" id="title" name="title" class="form-control">
-
-        <label for="title">Recipe Body:</label>
-        <input type="textarea" id="body" name="body" class="form-control">
+        <input type="hidden" name="recipe_id" value={{recipe_id}}> 
         
         <button type="submit" class="btn btn-primary">Submit</button>
       </form>

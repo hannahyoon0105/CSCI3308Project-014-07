@@ -1,25 +1,32 @@
-{{> head}}
-{{> nav}}
+<div class="card">
+    <div class="row">
+        <div class="col text-left">
+            <h1>{{title}}</h1>
+        </div>
 
-<h1>Recipe Title</h1>
+        <div class="col text-right">
+            <form action="/repost" method="GET">
+                    <input type="hidden" name="recipe_id" value={{recipe_id}}>
+                    <button class="action-button">Post Your Version!</button>
+            </form> 
+        </div>
+    </div>
 
-<button>Post your own version!</button>
+    <div class="card-body">
+        <div class="row">
+            <div class="col text-left">
+                <p>{{likes}} likes • {{reposts}} reposts</p>
+            </div>
+            <div class="col text-right">
+                    <p>Created by: {{author}}</p>
+                    <p>{{date_created}}</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-<p>_ likes </p>
-
-<p>_ comments</p>
-
-<p>_ reposts</p>
-
-<p>Created by:</p>
-{{!-- pfp --}}
-<img src="">
-<h4>username</h4>
-
-
-<p>Serves _</p>
-<p>Prep time, cook time</p>
-
+<div class="card">
+    <h3>Description:</h3>
+    <p>{{body}}</p>
+</div>
 {{!-- pull all recipe information from db, format in an organized way --}}
-
-{{> footer}}

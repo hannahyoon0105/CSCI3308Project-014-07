@@ -1,19 +1,51 @@
-{{> head}}
-{{> nav}}
 {{!-- pfp --}}
-<img src="">
-
-<h1>Username</h1>
-
-<button>Follow</button>
-
-<p>_ followers</p>
-
-<p>_ following</p>
-
+<div class="card">
+    <div class="card-body">
+    <div class="row">
+    {{!-- <div class="col text-left" id="profile-picture">
+        <img src={{profile_picture}} class="img-thumbnail" height="100px" width="100px"
+        style="border-radius: 50%;">
+    </div> --}}
+      <div class="col text-left">
+        <h1>{{user}}</h1>
+        <p>{{followers}} followers • {{following}} following</p>
+      </div>
+      <div class="col text-left"></div>
+      <div class="col text-left"></div>
+      <div class="col text-right">
+        {{#if self}}
+        {{else}}
+        <button id="follow-button" class="btn btn-lg btn-primary">Follow</button>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</div>
 {{!-- loop to display each post from a user --}}
-{{!-- {{#each}}
-
-{{/each}} --}}
+<div style="margin: 2rem;">
+  <h2>Posts:</h2>
+  <div class="row">
+    {{#each posts}}
+      <div class="col">
+        <div class="card" style="width: 300px;">
+          <div class="container">
+            <div class="row justify-content-center">
+              <div class="col-md-6">  
+                <div class="embed-responsive embed-responsive-4by3">
+                  <img src={{this.image_url}} class="card-img-top" width="100%" height="150px" class="img-fluid">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <h3>{{this.title}}</h3>
+            <p>{{this.caption}}</p>
+            <!-- Add other recipe details as needed -->
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</div>
 
 {{> footer}}
