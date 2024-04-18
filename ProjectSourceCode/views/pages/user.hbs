@@ -1,5 +1,7 @@
 {{!-- pfp --}}
+
 <div class="card">
+  <h3>{{> message}}</h3>
     <div class="card-body">
     <div class="row">
     {{!-- <div class="col text-left" id="profile-picture">
@@ -14,7 +16,7 @@
       <div class="col text-left"></div>
       <div class="col text-right">
         {{#if self}}
-        {{else if is_Followed}}
+        {{else if is_Followed.exists}}
             <form action="/follow-user-u" method="POST">
                     <input type="hidden" name="username" value={{username}}> 
                     <input type="hidden" name="followee" value={{user}}> 
@@ -24,7 +26,7 @@
             <form action="/follow-user-u" method="POST">
                     <input type="hidden" name="username" value={{username}}> 
                     <input type="hidden" name="followee" value={{user}}> 
-                    <button class="follow-button followed">Follow</button>         
+                    <button class="follow-button">Follow</button>         
             </form>
         {{/if}}
       </div>
