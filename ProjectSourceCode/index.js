@@ -187,6 +187,9 @@ app.get('/home', function (req, res) {
       EXISTS (
     SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
 ) AS liked,
+      EXISTS (
+    SELECT 1 FROM followers f WHERE f.follower = $1 AND f.followee = p.author
+) AS followed,
 json_agg(
   json_build_object(
       'username', c.username, 
@@ -249,13 +252,20 @@ app.get('/user', function(req,res) {
   ;
   `;
 
-
+  const is_Followed = `
+  SELECT EXISTS (
+    SELECT 1 
+    FROM Followers f 
+    WHERE f.follower = '${req.session.user.username}' AND f.followee = '${req.query.username}'
+  );
+`;
   db.task('get-everything', task => {
     return task.batch([
       task.any(user_query),
       task.any(post_query),
       task.any(followers_q),
-      task.any(following_q)
+      task.any(following_q),
+      task.any(is_Followed)
     ])
   })
   .then (userdata => {
@@ -265,6 +275,7 @@ app.get('/user', function(req,res) {
       posts: userdata[1],
       followers: userdata[2][0].count,
       following: userdata[3][0].count,
+      is_Followed: userdata[4][0],
       username: req.session.user.username,
       self: req.query.self});
     // add followers, posts when we figure out db issues
@@ -380,7 +391,6 @@ app.post('/repost', async (req, res) => { //post
 app.post('/like-post', async (req, res) => { //like
   try {
     const { post_id, username } = req.body;
-    console.log(req.body);
     const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
     if (existingLike) {
       await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
@@ -398,13 +408,30 @@ app.post('/like-post', async (req, res) => { //like
 app.post('/follow-user', async (req, res) => { //follow
   try {
     const { username, followee } = req.body;
-    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE username = $1 AND followee = $2', [username, followee]);
+    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
     if (existingFollower) {
-      await db.none('DELETE FROM followers WHERE followee = $1 AND follower = $2', [username, followee]);
-      res.json({ success: true, message: 'Successfully Unfollowed' });
+      await db.none('DELETE FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
+      res.redirect('/home?message=User%20Unfollowed%20Successfully');
     } else {
       await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
-      res.json({ success: true, message: 'User Followed Successfully' });
+      res.redirect('/home?message=User%20Followed%20Successfully');
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error following user' });
+  }
+});
+
+app.post('/follow-user-u', async (req, res) => { //follow
+  try {
+    const { username, followee } = req.body;
+    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
+    if (existingFollower) {
+      await db.none('DELETE FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
+      res.redirect('/user?message=User%20Unfollowed%20Successfully');
+    } else {
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
+      res.redirect('/user?message=User%20Followed%20Successfully');
     }
   } catch (error) {
     console.error('Error liking post:', error);

@@ -14,8 +14,18 @@
       <div class="col text-left"></div>
       <div class="col text-right">
         {{#if self}}
+        {{else if is_Followed}}
+            <form action="/follow-user-u" method="POST">
+                    <input type="hidden" name="username" value={{username}}> 
+                    <input type="hidden" name="followee" value={{user}}> 
+                    <button class="follow-button followed">Following</button>           
+            </form>
         {{else}}
-        <button id="follow-button" class="btn btn-lg btn-primary">Follow</button>
+            <form action="/follow-user-u" method="POST">
+                    <input type="hidden" name="username" value={{username}}> 
+                    <input type="hidden" name="followee" value={{user}}> 
+                    <button class="follow-button followed">Follow</button>         
+            </form>
         {{/if}}
       </div>
     </div>
