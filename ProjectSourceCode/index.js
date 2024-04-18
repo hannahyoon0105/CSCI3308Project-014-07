@@ -228,6 +228,7 @@ p.date_created DESC;`, [username])
 });
 
 app.get('/user', function(req,res) {
+  res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   const user_query = `SELECT *
   FROM users
   WHERE username = '${req.query.username}';`;
@@ -277,7 +278,8 @@ app.get('/user', function(req,res) {
       following: userdata[3][0].count,
       is_Followed: userdata[4][0],
       username: req.session.user.username,
-      self: req.query.self});
+      self: req.query.self,
+      message: req.query.message});
     // add followers, posts when we figure out db issues
   })
   .catch (error => {
@@ -413,7 +415,7 @@ app.post('/follow-user', async (req, res) => { //follow
       await db.none('DELETE FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
       res.redirect('/home?message=User%20Unfollowed%20Successfully');
     } else {
-      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($1, $2)', [username, followee]);
       res.redirect('/home?message=User%20Followed%20Successfully');
     }
   } catch (error) {
@@ -428,10 +430,12 @@ app.post('/follow-user-u', async (req, res) => { //follow
     const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
     if (existingFollower) {
       await db.none('DELETE FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
-      res.redirect('/user?message=User%20Unfollowed%20Successfully');
+      console.log(req.body)
+      res.redirect(`/user?username=${followee}&message=User%20Unfollowed%20Successfully`);
     } else {
-      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
-      res.redirect('/user?message=User%20Followed%20Successfully');
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($1, $2)', [username, followee]);
+      console.log(req.body)
+      res.redirect(`/user?username=${followee}&message=User%20Followed%20Successfully`);
     }
   } catch (error) {
     console.error('Error liking post:', error);
