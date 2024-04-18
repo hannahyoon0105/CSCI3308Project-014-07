@@ -94,9 +94,13 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get('/', function (req, res) {
+  try{
     res.render('pages/home',{
       username: req.session.user.username
-    });
+    });}
+  catch{
+    res.render('pages/login');
+  }
   });
 
 app.get('/test', function (req, res) {
@@ -147,7 +151,7 @@ else, save the user in the session variable
       user.username = login_user.username;
       req.session.user = user;
       req.session.save();
-      res.redirect('/');
+      res.redirect('/global');
     } else {
       res.render('pages/login' ,{
         message: `Incorrect username or password.`
@@ -236,7 +240,64 @@ p.date_created DESC;`, [username])
     });
 });
 
+
+app.get('/global', function (req, res) {
+  res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  const username = req.session.user.username;
+  const message = req.query.message
+    db.any(`
+    SELECT 
+    P.post_id, 
+     p.author, 
+      p.caption, 
+      p.recipe_id, 
+      p.date_created, 
+      p.image_url, 
+      EXISTS (
+    SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
+) AS liked,
+      EXISTS (
+    SELECT 1 FROM followers f WHERE f.follower = $1 AND f.followee = p.author
+) AS followed,
+json_agg(
+  json_build_object(
+      'username', c.username, 
+      'body', c.body, 
+      'date_created', c.date_created
+  ) 
+  ORDER BY c.date_created DESC
+) AS comments
+    FROM posts p 
+    LEFT JOIN followers f ON f.followee = p.author 
+    LEFT JOIN users u ON u.username = f.follower 
+    LEFT JOIN comments c ON c.post_id = p.post_id
+    
+ GROUP BY 
+ P.post_id, 
+     p.author, 
+      p.caption, 
+      p.recipe_id, 
+      p.date_created, 
+      p.image_url
+ORDER BY 
+p.date_created DESC;`, [username])
+    .then(posts => {
+      posts.forEach(post => {
+        console.log('Post:', post);
+      });
+      res.render('pages/global', { posts , username: req.session.user.username, message});
+    })
+    .catch(err => {
+      console.log(err);
+      res.render('pages/global', {
+      error: true,
+      message: 'Error getting posts',
+      username: req.session.user.username});
+    });
+});
+
 app.get('/user', function(req,res) {
+  res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   const user_query = `SELECT *
   FROM users
   WHERE username = '${req.query.username}';`;
@@ -286,12 +347,13 @@ app.get('/user', function(req,res) {
       following: userdata[3][0].count,
       is_Followed: userdata[4][0],
       username: req.session.user.username,
-      self: req.query.self});
+      self: req.query.self,
+      message: req.query.message});
     // add followers, posts when we figure out db issues
   })
   .catch (error => {
     console.log(error)
-    res.render('pages/home', {username: req.session.user.username, message: "User Not Found"});
+    res.render('pages/home', {username: req.session.user.username, message: "Error: User not found"});
   });
   
 });
@@ -403,27 +465,61 @@ app.post('/like-post', async (req, res) => { //like
     const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
     if (existingLike) {
       await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
-      res.redirect('/home?message=Like%20Removed%20Successfully');
+      res.redirect('/home?message=Like%20removed');
     } else {
       await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
-      res.redirect('/home?message=Post%20Liked%20Successfully');
+      res.redirect('/home?message=Post%20liked');
     }
   } catch (error) {
     console.error('Error liking post:', error);
-    res.redirect('/home?message=Error%20Liking%20Post');
+    res.redirect('/home?message=Error%20liking%20post');
   }
 });
 
+app.post('/like-post-g', async (req, res) => { //like
+  try {
+    const { post_id, username } = req.body;
+    const existingLike = await db.oneOrNone('SELECT * FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+    if (existingLike) {
+      await db.none('DELETE FROM likes WHERE post_id = $1 AND username = $2', [post_id, username]);
+      res.redirect('/global?message=Like%20removed');
+    } else {
+      await db.none('INSERT INTO likes (post_id, username) VALUES ($1, $2)', [post_id, username]);
+      res.redirect('/global?message=Post%20liked');
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.redirect('/global?message=Error%20liking%20post');
+  }
+});
 app.post('/follow-user', async (req, res) => { //follow
   try {
     const { username, followee } = req.body;
     const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
     if (existingFollower) {
       await db.none('DELETE FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
-      res.redirect('/home?message=User%20Unfollowed%20Successfully');
+      res.redirect('/home?message=User%20unfollowed');
     } else {
-      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
-      res.redirect('/home?message=User%20Followed%20Successfully');
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($1, $2)', [username, followee]);
+      res.redirect('/home?message=User%20followed');
+    }
+  } catch (error) {
+    console.error('Error liking post:', error);
+    res.status(500).json({ success: false, message: 'Error following user' });
+  }
+});
+
+
+app.post('/follow-user-g', async (req, res) => { //follow
+  try {
+    const { username, followee } = req.body;
+    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
+    if (existingFollower) {
+      await db.none('DELETE FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
+      res.redirect('/global?message=User%20unfollowed');
+    } else {
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($1, $2)', [username, followee]);
+      res.redirect('/global?message=User%20followed');
     }
   } catch (error) {
     console.error('Error liking post:', error);
@@ -437,17 +533,37 @@ app.post('/follow-user-u', async (req, res) => { //follow
     const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
     if (existingFollower) {
       await db.none('DELETE FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
-      res.redirect('/user?message=User%20Unfollowed%20Successfully');
+      console.log(req.body)
+      res.redirect(`/user?username=${followee}&message=User%20unfollowed`);
     } else {
-      await db.none('INSERT INTO followers (follower, followee) VALUES ($2, $1)', [username, followee]);
-      res.redirect('/user?message=User%20Followed%20Successfully');
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($1, $2)', [username, followee]);
+      console.log(req.body)
+      res.redirect(`/user?username=${followee}&message=User%20followed`);
+    }
+  } catch (error) {
+    console.error('Error following user:', error);
+    res.status(500).json({ success: false, message: 'Error following user' });
+  }
+});
+
+app.post('/follow-user-u-g', async (req, res) => { //follow
+  try {
+    const { username, followee } = req.body;
+    const existingFollower = await db.oneOrNone('SELECT * FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
+    if (existingFollower) {
+      await db.none('DELETE FROM followers WHERE follower = $1 AND followee = $2', [username, followee]);
+      console.log(req.body)
+      res.redirect(`/user?username=${followee}&message=User%20unfollowed`);
+    } else {
+      await db.none('INSERT INTO followers (follower, followee) VALUES ($1, $2)', [username, followee]);
+      console.log(req.body)
+      res.redirect(`/user?username=${followee}&message=User%20followed`);
     }
   } catch (error) {
     console.error('Error liking post:', error);
     res.status(500).json({ success: false, message: 'Error following user' });
   }
 });
-
 app.post('/comment-post', function (req, res) {
   const date_ = new Date();
   const query =
@@ -460,18 +576,37 @@ app.post('/comment-post', function (req, res) {
   ])
     .then(function (data) {
       console.log(data)
-      res.redirect('/home?message=Comment%20posted%20successfully');
+      res.redirect('/home?message=Comment%20posted');
     })
     .catch(function (err) {
       console.error('Error commenting on post:', err);
-      res.redirect('/home?message=Comment%20posted%20Unsuccessfully');
+      res.redirect('/home?message=Comment%20posted');
     });
 });
 
+app.post('/comment-post-g', function (req, res) {
+  const date_ = new Date();
+  const query =
+    'insert into comments (post_id, username, body, date_created) values ($1, $2, $3, $4)  returning * ;';
+  db.any(query, [
+    req.body.post_id,
+    req.body.username,
+    req.body.comment,
+    date_
+  ])
+    .then(function (data) {
+      console.log(data)
+      res.redirect('/global?message=Comment%20posted');
+    })
+    .catch(function (err) {
+      console.error('Error commenting on post:', err);
+      res.redirect('/global?message=Error:%20comment%20post%20unsuccessful&error=true');
+    });
+});
 
 app.get('/logout', (req, res) => {
   req.session.destroy();
-  res.render('pages/logout', {message: 'Logged out successfully!'});
+  res.render('pages/login', {message: "Logged out"});
 });
 
 // *****************************************************

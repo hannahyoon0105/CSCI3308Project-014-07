@@ -92,7 +92,7 @@
 
 <!-- Main Feed -->
 <div class="main-feed">
-    <h3>{{> message}}</h3>
+    <p>{{> message}}</p>
     {{#each posts}}
     <!-- Post Card -->
     <div class="post-card">
@@ -119,7 +119,6 @@
                     <input type="hidden" name="recipe_id" value={{recipe_id}}>
                     <button class="action-button btn btn-link">View Recipe</button>
                 </form> 
-
         </div>
         
         <div class="card-body" id="post-content">
@@ -151,9 +150,9 @@
                 </form>  
                 <form action="/comment-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{author}}> 
+                    <input type="hidden" name="username" value={{../username}}> 
                     <input type="text" id="comment" name="comment" required >                  
-                    <button class="btn btn-primary btn-sm" style="margin-top: -3px;"><strong>Add Comment</strong></button>
+                    <button class="btn btn-primary btn-sm" style="margin-top: -3px;"><strong>Add Comment</strong></button>                
                 </form>      
             </div>
         </div>

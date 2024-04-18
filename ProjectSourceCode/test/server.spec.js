@@ -110,7 +110,7 @@ describe('Testing login API', () => {
       .send({username: 'jonny', password: 'password123'})
       .end((err, res) => {
         expect(res).to.have.status(302);
-        res.should.redirectTo('/');
+        res.should.redirectTo('/global');
         done();
       });
   });

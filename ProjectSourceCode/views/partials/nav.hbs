@@ -6,6 +6,9 @@
         <li class="nav-item">
           <!-- TODO: For 'Home', Add a <a> tag with class="nav-link" and href='/' API that navigates to home page if logged in, or login page if not -->
             {{#if username}}
+                <a class = "nav-link" href = "/global">Cookify</a>
+                </li>
+                <li>
                 <a class = "nav-link" href = "/home">Home</a>
             {{else}}
                 <a class = "nav-link" href = "/login">Login</a>
