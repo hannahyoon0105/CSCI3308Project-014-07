@@ -96,7 +96,7 @@
                     <input type="hidden" name="username" value={{author}}>
                     <button class="btn">{{author}}</button>
             </form> 
-            <form action="/follow-user" method="POST">
+            <form action="/follow-user-g" method="POST">
                     <input type="hidden" name="username" value={{../username}}> 
                     <input type="hidden" name="followee" value={{author}}> 
                     {{#if followed}}
@@ -119,7 +119,7 @@
             <p class="caption">{{caption}}</p>
             <!-- Like, Comment, Repost Buttons -->
             <div class="post-actions">
-                <form action="/like-post" method="POST">
+                <form action="/like-post-g" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
                     <input type="hidden" name="username" value={{../username}}> 
                     {{#if liked}}
@@ -128,9 +128,9 @@
                          <button class="like-button">❤️ Like</button>
                     {{/if}}
                 </form>  
-                <form action="/comment-post" method="POST">
+                <form action="/comment-post-g" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{author}}> 
+                    <input type="hidden" name="username" value={{../username}}> 
                     <button class="action-button">Comment</button>
                     <input type="text" id="comment" name="comment" required>                  
                 </form>      
