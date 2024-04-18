@@ -96,6 +96,15 @@
                     <input type="hidden" name="username" value={{author}}>
                     <button class="btn">{{author}}</button>
             </form> 
+            <form action="/follow-user" method="POST">
+                    <input type="hidden" name="username" value={{../username}}> 
+                    <input type="hidden" name="followee" value={{author}}> 
+                    {{#if followed}}
+                        <button class="follow-button followed">Following</button>
+                    {{else}}
+                        <button class="follow-button">Follow</button>
+                    {{/if}}               
+            </form>    
             <p class="date">{{date_created}}</p>
 
             <form action="/recipe" method="GET">
