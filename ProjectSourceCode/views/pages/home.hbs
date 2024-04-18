@@ -82,6 +82,11 @@
         color: #777;
         font-size: 0.8em;
     }
+
+    #author-link:hover {
+        color: blue;
+        text-decoration: underline;
+    }
 </style>
 
 
@@ -94,13 +99,13 @@
         <div class="post-header">
             <form action="/user" method="GET">
                     <input type="hidden" name="username" value={{author}}>
-                    <button class="btn">{{author}}</button>
+                    <button class="btn" id="author-link">{{author}}</button>
             </form> 
             <form action="/follow-user" method="POST">
                     <input type="hidden" name="username" value={{../username}}> 
                     <input type="hidden" name="followee" value={{author}}> 
                     {{#if followed}}
-                        <button class="follow-button followed">Following</button>
+                        <button class="follow-button followed btn btn-secondary">Following</button>
                     {{else}}
                         <button class="follow-button">Follow</button>
                     {{/if}}               
@@ -109,7 +114,7 @@
 
             <form action="/recipe" method="GET">
                     <input type="hidden" name="recipe_id" value={{recipe_id}}>
-                    <button class="action-button">View Recipe</button>
+                    <button class="action-button btn btn-link">View Recipe</button>
                 </form> 
 
         </div>
