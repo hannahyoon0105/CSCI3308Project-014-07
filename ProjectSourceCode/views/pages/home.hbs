@@ -87,7 +87,7 @@
 
 <!-- Main Feed -->
 <div class="main-feed">
-    <h3>{{> message}}</h3>
+    <p>{{> message}}</p>
     {{#each posts}}
     <!-- Post Card -->
     <div class="post-card">
@@ -129,7 +129,7 @@
                 </form>  
                 <form action="/comment-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{author}}> 
+                    <input type="hidden" name="username" value={{../username}}> 
                     <button class="action-button">Comment</button>
                     <input type="text" id="comment" name="comment" required>                  
                 </form>      
