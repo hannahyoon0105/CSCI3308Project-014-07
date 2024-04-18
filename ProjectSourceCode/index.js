@@ -85,9 +85,13 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get('/', function (req, res) {
+  try{
     res.render('pages/home',{
       username: req.session.user.username
-    });
+    });}
+  catch{
+    res.render('pages/login');
+  }
   });
 
 app.get('/test', function (req, res) {
@@ -138,7 +142,7 @@ else, save the user in the session variable
       user.username = login_user.username;
       req.session.user = user;
       req.session.save();
-      res.redirect('/');
+      res.redirect('/home');
     } else {
       res.render('pages/login' ,{
         message: `Incorrect username or password.`
@@ -226,6 +230,8 @@ p.date_created DESC;`, [username])
       username: req.session.user.username});
     });
 });
+
+
 
 app.get('/user', function(req,res) {
   res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
