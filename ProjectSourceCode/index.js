@@ -22,6 +22,15 @@ const hbs = handlebars.create({
   extname: 'hbs',
   layoutsDir: __dirname + '/views/layouts',
   partialsDir: __dirname + '/views/partials',
+  helpers : {
+    fixDate : sqlDate => {
+      var jsDate;
+      if (sqlDate) jsDate = new Date(sqlDate);
+      else return;
+
+      return `${jsDate.toLocaleDateString()}`;
+    }
+  }
 });
 
 // database configuration
