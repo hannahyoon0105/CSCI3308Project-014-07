@@ -25,28 +25,27 @@
         padding: 10px;
     }
 
-    .post-photo-container {
-        width: 100%;
-        height: 200px; /* Fixed height for photos */
-        overflow: hidden;
+    .image-container {
+        {{!-- width: 900px; 
+        height: 200px;  --}}
         display: flex;
-        align-items: center;
         justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        position: relative;
     }
 
-    .post-photo {
-        max-width: 100%;
-        max-height: 100%;
-        margin-top: 10px; 
-        margin-bottom: 10px; 
-        margin-left: 250px; 
-        margin-right: 30px 
+    #post-photo {
+        {{!-- max-width: 100%;
+        max-height: 100%; --}}
+        width: 800px;
+        height: 500px;
+        padding-left: 30px;
+        padding-right: 30px;
     }
 
     .caption {
-        margin-top: 8px;
-        margin-left: 250px;
-        font-size: 0.9em;
+
     }
 
     .post-actions {
@@ -81,6 +80,12 @@
     .date {
         color: #777;
         font-size: 0.8em;
+        margin-top: 15px;
+    }
+
+    #author-link:hover {
+        color: blue;
+        text-decoration: underline;
     }
 </style>
 
@@ -92,30 +97,43 @@
     <!-- Post Card -->
     <div class="post-card">
         <div class="post-header">
-            <form action="/user" method="GET">
-                    <input type="hidden" name="username" value={{author}}>
-                    <button class="btn">{{author}}</button>
-            </form> 
-            <form action="/follow-user" method="POST">
-                    <input type="hidden" name="username" value={{../username}}> 
-                    <input type="hidden" name="followee" value={{author}}> 
-                    {{#if followed}}
-                        <button class="follow-button followed">Following</button>
-                    {{else}}
-                        <button class="follow-button">Follow</button>
-                    {{/if}}               
-            </form>    
-            <p class="date">{{date_created}}</p>
+            <div class="row" style="padding-left: 20px;">
+                <form action="/user" method="GET">
+                        <input type="hidden" name="username" value={{author}}>
+                        <button class="btn" id="author-link">{{author}}</button>
+                </form> 
+                <form action="/follow-user" method="POST">
+                        <input type="hidden" name="username" value={{../username}}> 
+                        <input type="hidden" name="followee" value={{author}}> 
+                        {{#if followed}}
+                            <button class="follow-button followed btn btn-secondary">Following</button>
+                        {{else}}
+                            <button class="follow-button">Follow</button>
+                        {{/if}}               
+                </form> 
+            </div>   
+
+            <p class="date">{{fixDate date_created}}</p>
 
             <form action="/recipe" method="GET">
                     <input type="hidden" name="recipe_id" value={{recipe_id}}>
-                    <button class="action-button">View Recipe</button>
+                    <button class="action-button btn btn-link">View Recipe</button>
                 </form> 
         </div>
         
-        <div class="post-content">
-            <img src="{{image_url}}" alt="Posted Photo" class="post-photo">
-            <p class="caption">{{caption}}</p>
+        <div class="card-body" id="post-content">
+            {{!-- <img src="{{image_url}}" alt="Posted Photo" class="post-photo"> --}}
+            <div class="image-container">
+                <img src="{{image_url}}" alt="Posted Photo" id="post-photo" class="card-image-top">
+            </div>
+            <form action="/user" method="GET" clas="row">
+                    <input type="hidden" name="username" value={{author}}>
+                    <p style="margin-top: 10px;">
+                        <button class="btn" id="author-link" style="margin: -4px 0px 0px 0px; padding: 0px 0px 0px 0px;"><strong>{{author}}:</strong></button>
+                        
+                        {{caption}}
+                    </p>
+            </form> 
             <!-- Like, Comment, Repost Buttons -->
             <div class="post-actions">
                 <form action="/like-post" method="POST">
@@ -126,12 +144,15 @@
                     {{else}}
                          <button class="like-button">❤️ Like</button>
                     {{/if}}
+                    <span style="margin-left: 1rem;">
+                        <strong>__</strong> likes
+                    </span>
                 </form>  
                 <form action="/comment-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
                     <input type="hidden" name="username" value={{../username}}> 
-                    <button class="action-button">Comment</button>
-                    <input type="text" id="comment" name="comment" required>                  
+                    <input type="text" id="comment" name="comment" required >                  
+                    <button class="btn btn-primary btn-sm" style="margin-top: -3px;"><strong>Add Comment</strong></button>                
                 </form>      
             </div>
         </div>
@@ -141,7 +162,7 @@
             {{#each comments}}
             <div class="comment-content">
                 <h4 class="username">{{this.username}}</h4>
-                <p class="date">{{this.date_created}}</p>
+                <p class="date">{{fixDate this.date_created}}</p>
                 <p class="comment">{{this.body}}</p>
             </div>
             {{/each}}
