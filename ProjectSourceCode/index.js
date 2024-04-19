@@ -203,6 +203,7 @@ app.get('/home', function (req, res) {
       EXISTS (
     SELECT 1 FROM followers f WHERE f.follower = $1 AND f.followee = p.author
 ) AS followed,
+COUNT(l.username) as like_count,
 json_agg(
   json_build_object(
       'username', c.username, 
@@ -213,7 +214,8 @@ json_agg(
 ) AS comments
     FROM posts p 
     INNER JOIN followers f ON f.followee = p.author 
-    INNER JOIN users u ON u.username = f.follower 
+    INNER JOIN users u ON u.username = f.follower
+    INNER JOIN likes l ON l.post_id = p.post_id 
     LEFT JOIN comments c ON c.post_id = p.post_id
     WHERE u.username = $1
  GROUP BY 
@@ -390,7 +392,7 @@ app.get('/recipe', function (req, res) {
     ]);
   })
     .then(recipedata => {
-      console.log(recipedata)
+      // console.log(recipedata)
       const sqlTimeStamp = recipedata[0][0].date_created;
       // const jsDate = new Date(sqlTimeStamp);
       // const formattedDate = `${jsDate.toLocaleDateString()}`;

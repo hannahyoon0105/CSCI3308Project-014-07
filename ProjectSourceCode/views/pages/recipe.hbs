@@ -1,3 +1,10 @@
+<style>
+    #author-link:hover {
+        color: blue;
+        text-decoration: underline;
+    }
+</style>
+
 <div class="card">
     <div class="row">
         <div class="col text-left">
@@ -18,7 +25,12 @@
                 <p>{{likes}} likes • {{reposts}} reposts</p>
             </div>
             <div class="col text-right">
-                    <p>Created by: {{author}}</p>
+                    <p>
+                    <form action="/user" method="GET" type="hidden">
+                        <input type="hidden" name="username" value={{author}}>
+                        Created by:<button class="btn" id="author-link" style="margin-top: -4px; margin-left: -5px;">{{author}}</button>
+                    </form> 
+                </p>
                     <p>{{date_created}}</p>
             </div>
         </div>
