@@ -83,6 +83,12 @@ app.use(
 const user = {
   username: undefined
 };
+Handlebars.registerHelper('ifCond', function(v1, v2, options) {
+  if(v1 === v2) {
+    return options.fn(this);
+  }
+  return options.inverse(this);
+});
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -189,42 +195,44 @@ app.get('/home', function (req, res) {
   res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   const username = req.session.user.username;
   const message = req.query.message
-    db.any(`
-    SELECT 
+  db.any(`
+  SELECT 
     P.post_id, 
-     p.author, 
-      p.caption, 
-      p.recipe_id, 
-      p.date_created, 
-      p.image_url, 
-      EXISTS (
-    SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
+   p.author, 
+    p.caption, 
+    p.recipe_id, 
+    p.date_created, 
+    p.image_url,
+    (SELECT COUNT(username) FROM likes l WHERE l.post_id = p.post_id) as like_count,
+    EXISTS (
+  SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
 ) AS liked,
-      EXISTS (
-    SELECT 1 FROM followers f WHERE f.follower = $1 AND f.followee = p.author
+    EXISTS (
+  SELECT 1 FROM followers f WHERE f.follower = $1 AND f.followee = p.author
 ) AS followed,
-COUNT(l.username) as like_count,
 json_agg(
-  json_build_object(
-      'username', c.username, 
-      'body', c.body, 
-      'date_created', c.date_created
-  ) 
-  ORDER BY c.date_created DESC
+json_build_object(
+    'username', c.username, 
+    'body', c.body, 
+    'date_created', c.date_created,
+    'post_id', c.post_id
+) 
+ORDER BY c.date_created DESC
 ) AS comments
-    FROM posts p 
-    INNER JOIN followers f ON f.followee = p.author 
-    INNER JOIN users u ON u.username = f.follower
-    INNER JOIN likes l ON l.post_id = p.post_id 
-    LEFT JOIN comments c ON c.post_id = p.post_id
-    WHERE u.username = $1
- GROUP BY 
- P.post_id, 
-     p.author, 
-      p.caption, 
-      p.recipe_id, 
-      p.date_created, 
-      p.image_url
+  FROM posts p 
+  LEFT JOIN followers f ON f.followee = p.author 
+  LEFT JOIN users u ON u.username = f.follower 
+  LEFT JOIN comments c ON c.post_id = p.post_id
+  WHERE u.username= $1
+  
+  
+GROUP BY 
+P.post_id, 
+   p.author, 
+    p.caption, 
+    p.recipe_id, 
+    p.date_created, 
+    p.image_url
 ORDER BY 
 p.date_created DESC;`, [username])
     .then(posts => {
@@ -249,23 +257,26 @@ app.get('/global', function (req, res) {
   const message = req.query.message
     db.any(`
     SELECT 
-    P.post_id, 
+      P.post_id, 
      p.author, 
       p.caption, 
       p.recipe_id, 
       p.date_created, 
-      p.image_url, 
+      p.image_url,
+      (SELECT COUNT(username) FROM likes l WHERE l.post_id = p.post_id) as like_count,
       EXISTS (
     SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
 ) AS liked,
       EXISTS (
     SELECT 1 FROM followers f WHERE f.follower = $1 AND f.followee = p.author
 ) AS followed,
+
 json_agg(
   json_build_object(
       'username', c.username, 
       'body', c.body, 
-      'date_created', c.date_created
+      'date_created', c.date_created,
+      'post_id', c.post_id
   ) 
   ORDER BY c.date_created DESC
 ) AS comments
@@ -273,6 +284,7 @@ json_agg(
     LEFT JOIN followers f ON f.followee = p.author 
     LEFT JOIN users u ON u.username = f.follower 
     LEFT JOIN comments c ON c.post_id = p.post_id
+    
     
  GROUP BY 
  P.post_id, 
@@ -429,11 +441,11 @@ app.get('/recipe', function (req, res) {
     db.one('INSERT INTO recipes (title, author, body, date_created) VALUES ($1, $2, $3, $4) RETURNING recipe_id;', [title, author, body, date_created])
     .then(data => {
       db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, data.recipe_id, date_created, image_url, original_flag]);
-      res.redirect('/home');
+      res.redirect('/global');
     })
   } catch (error) {
     console.error('Error creating post:', error);
-    res.redirect('/home'); 
+    res.redirect('/global'); 
   }
 });
 
@@ -455,10 +467,10 @@ app.post('/repost', async (req, res) => { //post
     const recipe_id = req.body.recipe_id;
 
     await db.none('INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES ($1, $2, $3, $4, $5, $6)', [author, caption, recipe_id, date_created, image_url, original_flag]);
-    res.redirect('/home');
+    res.redirect('/global');
   } catch (error) {
     console.error('Error creating post:', error);
-    res.redirect('/home'); 
+    res.redirect('/global'); 
   }
 });
 app.post('/like-post', async (req, res) => { //like

@@ -37,6 +37,7 @@ CREATE TABLE likes (
 );
 DROP TABLE IF EXISTS comments;
 CREATE TABLE comments (
+    comment_id SERIAL PRIMARY KEY,
     post_id INTEGER NOT NULL REFERENCES posts(post_id),
     username VARCHAR(50) NOT NULL REFERENCES users(username),
     body TEXT NOT NULL,

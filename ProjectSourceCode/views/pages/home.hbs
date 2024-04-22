@@ -7,7 +7,7 @@
     }
 
     .post-card {
-        width: 60%; /* Adjust as needed */
+        width: 55%; /* Adjust as needed */
         margin-bottom: 20px;
         border: 1px solid #ccc;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -22,7 +22,7 @@
     }
 
     .post-content {
-        padding: 10px;
+        padding: 0px;
     }
 
     .image-container {
@@ -36,12 +36,11 @@
     }
 
     #post-photo {
-        {{!-- max-width: 100%;
-        max-height: 100%; --}}
-        width: 800px;
-        height: 500px;
-        padding-left: 30px;
-        padding-right: 30px;
+        width: 600px;
+        height: 400px;
+        padding-left: 0px;
+        padding-right: 0px;
+        padding-bottom: 15px;
     }
 
     .caption {
@@ -63,6 +62,7 @@
     }
 
     .comments {
+        height: 375px;
         margin-top: 8px;
     }
 
@@ -81,12 +81,64 @@
         color: #777;
         font-size: 0.8em;
         margin-top: 15px;
+        font-weight: normal;
     }
+    .heart-btn {
+    width: 10px;
+    height: 10px;
+    border: none;
+    position: relative;
+    transform: rotate(-45deg);
+}
+
+.heart-btn::before,
+.heart-btn::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    top: 0;
+    transform: translate(0, 0);
+}
+
+.red-heart {
+    background-color: red;
+}
+
+.red-heart::before,
+.red-heart::after {
+    background-color: red;
+}
+
+.white-heart {
+    background-color: white;
+    border: 2px solid black;
+}
+
+.white-heart::before,
+.white-heart::after {
+    background-color: white;
+    border: 2px solid black;
+}
+
+.heart-btn::before {
+    left: 5px;
+    border-bottom-left-radius: 5px;
+    border-top-left-radius: 5px;
+}
+
+.heart-btn::after {
+    left: 0;
+    border-bottom-right-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
 
     #author-link:hover {
-        color: blue;
         text-decoration: underline;
     }
+    
 </style>
 
 
@@ -94,22 +146,29 @@
 <div class="main-feed">
     <p>{{> message}}</p>
     {{#each posts}}
-    <!-- Post Card -->
+    
     <div class="post-card">
         <div class="post-header">
             <div class="row" style="padding-left: 20px;">
                 <form action="/user" method="GET">
                         <input type="hidden" name="username" value={{author}}>
-                        <button class="btn" id="author-link">{{author}}</button>
+                        {{#ifCond ../username author }}
+                            <input type="hidden" name="self" value="true">
+                        {{/ifCond}}
+                        <button class="btn" id="author-link"><strong>{{author}}</strong></button>
                 </form> 
                 <form action="/follow-user" method="POST">
                         <input type="hidden" name="username" value={{../username}}> 
                         <input type="hidden" name="followee" value={{author}}> 
-                        {{#if followed}}
-                            <button class="follow-button followed btn btn-secondary">Following</button>
+                        {{#ifCond ../username author }}
                         {{else}}
-                            <button class="follow-button">Follow</button>
-                        {{/if}}               
+                            {{#if followed}}
+                                <button class="follow-button followed btn btn-outline-info">Following</button>
+                            {{else}}
+                                <button class="follow-button followed btn btn-info">Follow</button>
+                            {{/if}}
+
+                        {{/ifCond}}               
                 </form> 
             </div>   
 
@@ -117,57 +176,75 @@
 
             <form action="/recipe" method="GET">
                     <input type="hidden" name="recipe_id" value={{recipe_id}}>
-                    <button class="action-button btn btn-link">View Recipe</button>
+                    <button class="follow-button btn btn-info">View Recipe</button>
                 </form> 
         </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-8", style="padding: 0px 0px 0px 0px">
+    <!-- Post Card -->
+        
         
         <div class="card-body" id="post-content">
-            {{!-- <img src="{{image_url}}" alt="Posted Photo" class="post-photo"> --}}
+            
             <div class="image-container">
                 <img src="{{image_url}}" alt="Posted Photo" id="post-photo" class="card-image-top">
             </div>
-            <form action="/user" method="GET" clas="row">
-                    <input type="hidden" name="username" value={{author}}>
-                    <p style="margin-top: 10px;">
-                        <button class="btn" id="author-link" style="margin: -4px 0px 0px 0px; padding: 0px 0px 0px 0px;"><strong>{{author}}:</strong></button>
-                        
-                        {{caption}}
-                    </p>
-            </form> 
-            <!-- Like, Comment, Repost Buttons -->
-            <div class="post-actions">
+            
                 <form action="/like-post" method="POST">
                     <input type="hidden" name="post_id" value={{post_id}}> 
                     <input type="hidden" name="username" value={{../username}}> 
                     {{#if liked}}
-                        <button class="like-button liked">Liked</button>
+                        <button class="btn btn-link"><i id="heart" class="fa fa-heart fa-6" style="color: red; font-size:1.5em;"></i></button><span>• &nbsp;&nbsp;{{like_count}} likes</span>
                     {{else}}
-                         <button class="like-button">❤️ Like</button>
+                        <button class="btn btn-link">
+                        <i id="heart" class="far fa-heart" style="color: red;font-size:1.5em;"></i></button><span>• &nbsp;&nbsp;{{like_count}} likes</span>
+                
                     {{/if}}
-                    <span style="margin-left: 1rem;">
-                        <strong>{{like_count}}</strong> likes
-                    </span>
                 </form>  
-                <form action="/comment-post" method="POST">
-                    <input type="hidden" name="post_id" value={{post_id}}> 
-                    <input type="hidden" name="username" value={{../username}}> 
-                    <input type="text" id="comment" name="comment" required >                  
-                    <button class="btn btn-primary btn-sm" style="margin-top: -3px;"><strong>Add Comment</strong></button>                
-                </form>      
-            </div>
+                        
+                        
+                    <form action="/user" method="GET" clas="row">
+                        <button class="btn" id="author-link" style="margin: -4px 0px 0px 0px; padding: 0px 0px 0px 0px;"><strong>{{author}}: <span style="font-weight: normal;">{{caption}}</span></strong></button>
+                        <input type="hidden" name="username" value={{author}}>
+                        {{#ifCond ../username author }}
+                            <input type="hidden" name="self" value="true">
+                        {{/ifCond}}
+                        <p style="margin-top: 5px;">
+                        </p>
+                    
+                    </form> 
+            <!-- Like, Comment, Repost Buttons -->
         </div>
-
+            </div>
+    <div class="col-sm-4", style="padding: 0px 0px 5px 0px; overflow:auto">
+    <!-- Post Card -->
        <!-- Comments -->
-        <div class="comments">
+       <br>
+       <h7>Comments: </h7>
+        <div class="comments", style="overflow:auto">
             {{#each comments}}
             <div class="comment-content">
-                <h4 class="username">{{this.username}}</h4>
-                <p class="date">{{fixDate this.date_created}}</p>
+                    <h4 class="username">{{this.username}} <span class="date">{{fixDate this.date_created}}</span></h4>
+
                 <p class="comment">{{this.body}}</p>
             </div>
             {{/each}}
+  
         </div>
+        <br>
+        <form action="/comment-post" method="POST">
+                    <input type="hidden" name="post_id" value={{post_id}}> 
+                    <input type="hidden" name="username" value={{../username}}> 
+                    <input type="text" id="comment" name="comment" required placeholder="Add comment...">    
+                           
+                    <button class="btn btn-info btn-sm" style="margin-top: -3px;"><strong>Post</strong></button>                
+            </form> 
     </div>
+    </div>
+    </div>
+    </div>
+    
     {{/each}}
 </div>
 

@@ -1,12 +1,35 @@
 <style>
-    #author-link:hover {
-        color: blue;
-        text-decoration: underline;
+    .post-card {
+        width: 100%; /* Adjust as needed */
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    .post-content {
+        padding: 0px;
     }
 </style>
+<!-- TODO: create a HTML form that takes two input fields: username and password -->
+<div class="container">
+  <div class="row">
 
-<div class="card">
-    <div class="row">
+    <div class="col-sm-1">
+    </div>
+
+    <div class="col-sm-10">
+       <div class="post-card">
+        <div class="row">
         <div class="col text-left">
             <h1>{{title}}</h1>
         </div>
@@ -14,31 +37,32 @@
         <div class="col text-right">
             <form action="/repost" method="GET">
                     <input type="hidden" name="recipe_id" value={{recipe_id}}>
-                    <button class="action-button">Post Your Version!</button>
+                    <button class="btn btn-info">Post Your Version!</button>
             </form> 
         </div>
     </div>
 
-    <div class="card-body">
+    <div >
         <div class="row">
             <div class="col text-left">
+                <p>Created by: <a href="./user?username={{author}}">{{author}}</a></p>
                 <p>{{likes}} likes • {{reposts}} reposts</p>
             </div>
             <div class="col text-right">
-                    <p>
-                    <form action="/user" method="GET" type="hidden">
-                        <input type="hidden" name="username" value={{author}}>
-                        Created by:<button class="btn" id="author-link" style="margin-top: -4px; margin-left: -5px;">{{author}}</button>
-                    </form> 
-                </p>
                     <p>{{date_created}}</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <h3>Description:</h3>
+<div class="post-card">
+    <h3>Recipe:</h3>
     <p>{{body}}</p>
 </div>
+    </div>
+    <div class="col-sm-1">
+    </div>
+  </div>
+</div>
+
 {{!-- pull all recipe information from db, format in an organized way --}}

@@ -278,7 +278,7 @@ Enjoy your delicious and healthy grilled salmon! It is perfect for a quick and f
 -- POSTS
 INSERT INTO posts (author, caption, recipe_id, date_created, image_url, original_flag) VALUES 
 ('user1', 'Enjoying chocolate cake tonight!', 1, '2024-04-11 15:02:58.379', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbYO6tnJHEnEiMT5fgVeMxkpoLdz-zfMfMOOgYkWgkk7gQ570Hzlu9IX8WtXGCTJagEEE&usqp=CAU', TRUE),
-('user1', 'Pasta Carbonara for everyday!', 2, '2024-05-13 15:02:58.379', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsCbiw1YFTw8gzy1-CNFn1-Es3RsP9sthwo2LIKZutXQ&s', TRUE),
+('user1', 'Pasta Carbonara for everyday!', 2, '2024-04-13 15:02:58.379', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSsCbiw1YFTw8gzy1-CNFn1-Es3RsP9sthwo2LIKZutXQ&s', TRUE),
 ('user2', 'Best Chicken and Rice Ever!', 3, '2024-02-20 15:02:58.379', 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6V2gHpBcb5MkIm_2-3AFSsTQLC4Sa5ymlI3qUHv5onw&s', TRUE),
 ('user2', 'Meatball Recipe', 4, '2024-04-13 15:02:58.379', 'https://www.thereciperebel.com/wp-content/uploads/2021/02/meatball-recipe-www.thereciperebel.com-600-20-of-21.jpg', TRUE),
 ('user2', 'Family Shrimp Scampi', 5, '2024-04-08 15:02:58.379', 'https://static01.nyt.com/images/2022/06/02/dining/ShrimpScampi_thumb/ShrimpScampi_thumb-square640.jpg', TRUE),
@@ -311,9 +311,9 @@ INSERT INTO likes (post_id, username) VALUES
 -- COMMENTS
 INSERT INTO comments (post_id, username, body, date_created) VALUES 
 (1, 'user2', 'Looks delicious!', '2024-04-12 15:02:58.379'),
-(2, 'user3', 'Yum! Will try', '2024-05-14 15:02:58.379'),
+(2, 'user3', 'Yum! Will try', '2024-04-14 15:02:58.379'),
 (3, 'user1', 'Love it!!', '2024-03-01 15:02:58.379'),
 (3, 'user1', 'This looks heinous you should learn how to cook haha', '2024-03-01 15:02:58.379'),
-(5, 'user3', 'Lets try this out','2024-05-01 12:02:58.379' ),
-(5, 'user1', 'Cannot wait to make this on my own!','2024-03-01 12:02:58.379' ),
-(7, 'user2', 'MMMMMM!!!','2024-07-01 12:02:58.379' );
+(5, 'user3', 'Lets try this out','2024-04-01 12:02:58.379' ),
+(5, 'user1', 'Cannot wait to make this on my own!','2024-03-21 12:02:58.379' ),
+(7, 'user2', 'MMMMMM!!!','2024-03-08 12:02:58.379' );
