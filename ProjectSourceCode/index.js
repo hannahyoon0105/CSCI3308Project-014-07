@@ -246,7 +246,8 @@ p.date_created DESC;`, [username])
       res.render('pages/home', {
       error: true,
       message: 'Error getting posts',
-      username: req.session.user.username});
+      username: req.session.user.username
+      });
     });
 });
 
@@ -362,7 +363,8 @@ app.get('/user', function(req,res) {
       is_Followed: userdata[4][0],
       username: req.session.user.username,
       self: req.query.self,
-      message: req.query.message});
+      message: req.query.message
+      });
     // add followers, posts when we figure out db issues
   })
   .catch (error => {
