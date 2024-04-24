@@ -1,0 +1,12 @@
+Meeting 5 Minutes
+
+Presented our presentation and demo
+
+Total Time: 8 mins 52 seconds (we have space for another minute if we need)
+
+Cory’s advice: 
+- Make sure that you introduce yourself at the beginning of the presentation
+- Tools: change Visual Studio to vs code
+- Demo: maybe make sure multiple people are talking, show registration/login flow more
+- Be able to articulate 3 main features of product
+- Architecture diagram is a little confusing, frontend is typically in the client side bubble, though probably fine if the frontend is in server side anyways
