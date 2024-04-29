@@ -3,6 +3,10 @@
 INSERT INTO users (username, password) VALUES 
 ('user1', '$2b$10$KzNcwMKSu39FRqfHuSlW4.fF6yqWXew5fR2Fx6W.JxN7gQ6xZ9J9S'),
 ('user2', '$2b$10$KzNcwMKSu39FRqfHuSlW4.fF6yqWXew5fR2Fx6W.JxN7gQ6xZ9J9S'),
+('hannah', '$2b$10$KzNcwMKSu39FRqfHuSlW4.fF6yqWXew5fR2Fx6W.JxN7gQ6xZ9J9S'),
+('alex', '$2b$10$KzNcwMKSu39FRqfHuSlW4.fF6yqWXew5fR2Fx6W.JxN7gQ6xZ9J9S'),
+('vlad', '$2b$10$KzNcwMKSu39FRqfHuSlW4.fF6yqWXew5fR2Fx6W.JxN7gQ6xZ9J9S'),
+('lili', '$2b$10$KzNcwMKSu39FRqfHuSlW4.fF6yqWXew5fR2Fx6W.JxN7gQ6xZ9J9S'),
 ('user3', '$2b$10$KzNcwMKSu39FRqfHuSlW4.fF6yqWXew5fR2Fx6W.JxN7gQ6xZ9J9S');
 
 -- RECIPES
@@ -306,7 +310,12 @@ INSERT INTO likes (post_id, username) VALUES
 (3, 'user1'),
 (4, 'user1'),
 (5, 'user2'),
-(5, 'user3');
+(5, 'user3'),
+(9, 'user2'),
+(9, 'user1'),
+(9, 'user3'),
+(9, 'hannah'),
+(9, 'vlad');
 
 -- COMMENTS
 INSERT INTO comments (post_id, username, body, date_created) VALUES 
@@ -316,4 +325,10 @@ INSERT INTO comments (post_id, username, body, date_created) VALUES
 (3, 'user1', 'This looks heinous you should learn how to cook haha', '2024-03-01 15:02:58.379'),
 (5, 'user3', 'Lets try this out','2024-04-01 12:02:58.379' ),
 (5, 'user1', 'Cannot wait to make this on my own!','2024-03-21 12:02:58.379' ),
-(7, 'user2', 'MMMMMM!!!','2024-03-08 12:02:58.379' );
+(7, 'user2', 'MMMMMM!!!','2024-03-08 12:02:58.379' ),
+(9, 'user1', 'Thanks for reposting!','2024-04-20 12:02:58.379' ),
+(9, 'user1', 'Looks great','2024-04-21 12:02:58.379' ),
+(9, 'user3', 'I will try too!','2024-04-22 12:02:58.379' ),
+(9, 'vlad', 'yummmm','2024-04-22 12:02:58.379' ),
+(9, 'alex', 'gluten free version?','2024-04-22 12:02:58.379' ),
+(9, 'hannah', 'looks good!','2024-04-23 12:02:58.379' );

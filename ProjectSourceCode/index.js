@@ -256,46 +256,44 @@ app.get('/global', function (req, res) {
   res.header('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   const username = req.session.user.username;
   const message = req.query.message
-    db.any(`
-    SELECT 
-      P.post_id, 
-     p.author, 
-      p.caption, 
-      p.recipe_id, 
-      p.date_created, 
-      p.image_url,
-      (SELECT COUNT(username) FROM likes l WHERE l.post_id = p.post_id) as like_count,
-      EXISTS (
-    SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
-) AS liked,
-      EXISTS (
-    SELECT 1 FROM followers f WHERE f.follower = $1 AND f.followee = p.author
-) AS followed,
+  db.any(`
+  SELECT 
+    P.post_id, 
+    p.author, 
+    p.caption, 
+    p.recipe_id, 
+    p.date_created, 
+    p.image_url,
+    (SELECT COUNT(username) FROM likes l WHERE l.post_id = p.post_id) as like_count,
+    EXISTS (
+        SELECT 1 FROM likes l WHERE l.post_id = p.post_id AND l.username = $1
+    ) AS liked,
+    EXISTS (
+      SELECT 1 FROM followers f WHERE f.follower = $1 AND f.followee = p.author
+    ) AS followed,
+    json_agg(
+        json_build_object(
+            'username', c.username, 
+            'body', c.body, 
+            'date_created', c.date_created,
+            'post_id', c.post_id
+        ) 
+        ORDER BY c.date_created DESC
+    ) AS comments
+  FROM 
+    posts p 
+  LEFT JOIN 
+    comments c ON c.post_id = p.post_id
+  GROUP BY 
+    P.post_id, 
+    p.author, 
+    p.caption, 
+    p.recipe_id, 
+    p.date_created, 
+    p.image_url
+  ORDER BY 
+    p.date_created DESC;`, [username])
 
-json_agg(
-  json_build_object(
-      'username', c.username, 
-      'body', c.body, 
-      'date_created', c.date_created,
-      'post_id', c.post_id
-  ) 
-  ORDER BY c.date_created DESC
-) AS comments
-    FROM posts p 
-    LEFT JOIN followers f ON f.followee = p.author 
-    LEFT JOIN users u ON u.username = f.follower 
-    LEFT JOIN comments c ON c.post_id = p.post_id
-    
-    
- GROUP BY 
- P.post_id, 
-     p.author, 
-      p.caption, 
-      p.recipe_id, 
-      p.date_created, 
-      p.image_url
-ORDER BY 
-p.date_created DESC;`, [username])
     .then(posts => {
       posts.forEach(post => {
         console.log('Post:', post);
